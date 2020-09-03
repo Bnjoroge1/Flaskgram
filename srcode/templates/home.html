@@ -50,6 +50,8 @@
       {% if post.language and post.language != g.locale %}
         <a href="#">{{ _('Translate') }}</a>
       {% endif %}
+      {{ isso.embed_client() }}
+      {{ isso.render_comments("my-page", "Page title") }}
       <div>
         {% if post.author != current_user %}
           {% if current_user.is_authenticated %}
