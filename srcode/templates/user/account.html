@@ -1,0 +1,133 @@
+{% from "user/_refactor_account_forms.html" import render_account_forms %}
+{% extends "layout3.html" %}
+{% block content %}
+<br>
+    <div class="content-section">
+        <div class="row">
+            <div class="col-3">
+              <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Edit Profile  </a>
+                <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Subscriptions</a>
+                <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">Messages</a>
+                <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">Settings</a>
+              </div>
+            </div>
+            <div class="col-9">
+              <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                    <div class="media">
+                        <img class="rounded-circle account-img" src="{{ image_file }}">
+                        <div class="media-body">
+                          <h2 class="account-heading">{{ current_user.username }}</h2>
+                          <p class="text-secondary">{{ current_user.email }}</p>
+                          <p class= "text-secondary"> Last seen on {{ moment(current_user.last_seen).fromNow()}}</p>
+                          
+                  
+                          
+                    <div class="form-group">
+                        <form method="POST" action="" enctype="multipart/form-data" multiple>
+                            {{ form.bio.label(class="form-control-label") }}
+                
+                            {% if form.bio.errors %}
+                                {{ form.username(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.bio.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.bio(class="form-control form-control-sm") }}
+                            {% endif %} 
+                                
+                          </div>
+                      </div>
+                </div>
+                
+                            {{ form.hidden_tag() }}
+                            <fieldset class="form-group">
+                                <legend class="border-bottom mb-4">Account Info</legend>
+                                <div class="form-group">
+                                    
+                                    {{ form.username.label(class="form-control-label") }}
+                
+                                    {% if form.username.errors %}
+                                        {{ form.username(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.username.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.username(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                               
+                                <div class="form-group">
+                                    {{ form.email.label(class="form-control-label") }}
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                            
+                                
+                                <div class="form-group">
+                                    
+                
+                                    {{ form.picture.label() }}
+                                    {{ form.picture(class="form-control-file") }}
+                                    {% if form.picture.errors %}
+                                        {% for error in form.picture.errors %}
+                                            <span class="text-danger">{{ error }}</span>
+                                        <br>
+                                        {% endfor %}
+                                  
+                                        
+                                    {% endif %}
+                                </div>
+                            </fieldset>
+                            <div class="form-group">
+                                {{ form.submit(class="btn btn-outline-info") }}
+                            </div>
+                        </form>
+                
+                </div>
+                <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">  
+                   <h1>
+                       Current Subscription : Free(Basic) Plan
+                   </h1>
+                   <p>
+                       Want to get more features? Upgrade to a premium for as low as $7/month
+                   </p>
+                    <a class="buy-with-crypto"
+                    href="https://commerce.coinbase.com/checkout/80d647d4-cdcb-4295-a532-b74665731be4">
+                    <i class="fa fa-btc" aria-hidden="true"></i></a>
+                    <html>
+
+                    <button id="submitBtn" class= 'btn btn-success'>
+                        
+                    </button>
+                   
+                 </a>
+                </div>
+                <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">...</div>
+                <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+                    <h3>
+                        Reset/Change your Password?
+                    </h3>
+                    <a href=" {{ url_for('auth.password_reset_request') }} " class="btn btn-secondary">
+                        Click  here
+                    </a>
+                </div>
+              </div>
+            </div>
+          </div>       
+</div>
+
+{% endblock content %}

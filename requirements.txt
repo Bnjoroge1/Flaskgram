@@ -1,0 +1,61 @@
+alembic==1.4.2
+awscli==1.18.69
+bcrypt ==3.1.4
+blinker ==1.4
+Babel==2.8.0
+boto3==1.14.3
+certifi ==2016.2.28
+cffi ==1.11.5
+click==7.1.2
+cloudinary==1.22.0
+facebook-sdk @ http://github.com/pythonforfacebook/facebook-sdk/tarball/master
+Flask==1.1.2
+Flask-Babel==1.0.0
+Flask-Bcrypt==0.7.1
+Flask-Bootstrap==3.3.7.1
+Flask-Cache==0.13.1
+Flask-Dance==3.0.0
+Flask-Discussion==0.1.1
+Flask-Login==0.5.0
+Flask-Mail==0.9.1
+Flask-Migrate==2.5.3
+Flask-Moment==0.10.0
+Flask-Mpesa==1.2.1
+Flask-OAuth==0.12
+Flask-Script==2.0.6
+Flask-Security==3.0.0
+Flask-Share==0.1.1
+Flask-Social==1.6.2
+Flask-SQLAlchemy==2.4.4
+Flask-Turbolinks==0.2.0
+Flask-WTF==0.14.3
+itsdangerous==1.1.0
+jedi==0.17.0
+Jinja2==2.11.2
+jwt==1.0.0
+MarkupSafe==1.1.1
+mysql-connector-python==8.0.20
+oauth==1.0.1
+oauth2==1.9.0.post1
+oauthlib==3.0.1
+passlib==1.7.2
+Pillow==7.1.2
+pusher==3.0.0
+PyJWT==1.7.1
+PyMySQL==0.9.3
+pyngrok==4.1.8
+pyOpenSSL==19.0.0
+python-twitter==3.5
+python-dotenv == "*"
+rauth==0.7.3
+redis==3.5.3
+requests==2.23.0
+rq==1.5.0
+six ==1.11.0
+stripe==2.50.0
+Werkzeug==1.0.1
+WTForms==2.3.1
+python-dotenv==0.14.0
+pymysql == 0.10.0
+isso==0.12.2
+pytest==6.0.1

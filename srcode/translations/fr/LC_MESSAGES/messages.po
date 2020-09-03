@@ -1,0 +1,65 @@
+# French translations for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-08-16 16:10+0300\n"
+"PO-Revision-Date: 2020-08-16 16:17+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: srcode/__init__.py:95
+msgid "You need to login first to access this page"
+msgstr ""
+
+#: srcode/templates/404.html:11
+msgid "UH OH! You are lost."
+msgstr ""
+
+#: srcode/templates/404.html:12
+msgid ""
+"The page you are looking for does not exist.\n"
+"             How you got here is a mystery. But you can click the button "
+"below\n"
+"             to go back to the homepage."
+msgstr ""
+
+#: srcode/templates/about.html:26
+msgid "Share the post?"
+msgstr ""
+
+#: srcode/templates/about.html:31
+msgid "Wanna Share the post?"
+msgstr ""
+
+#: srcode/templates/about.html:42
+msgid "When commenting please adhere to the community guidelines!"
+msgstr ""
+
+#: srcode/templates/about.html:44
+msgid "Comment"
+msgstr ""
+
+#: srcode/templates/about.html:50
+msgid "Update"
+msgstr ""
+
+#: srcode/templates/about.html:52
+msgid "Delete"
+msgstr ""
+
+#: srcode/templates/home.html:7
+#, python-format
+msgid "Hi, %(username)s!"
+msgstr ""
+

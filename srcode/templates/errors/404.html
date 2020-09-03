@@ -1,0 +1,21 @@
+{% extends "layout3.html" %}
+{% block content %}
+<main>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 align-self-center">
+       <img src="{{ url_for('static', filename='profile_pics/404.png')}}", alt='404 Image'>
+         </div>
+         <div class="col-md-6 align-self-center">
+           
+           <h2>{{ _('UH OH! You are lost.') }}</h2>
+           <p> {{ _('The page you are looking for does not exist.
+             How you got here is a mystery. But you can click the button below
+             to go back to the homepage.') }}
+           </p>
+           <a href="{{url_for('user.home')}}" class="btn btn-success btn-sm mt-1 mb-1">HOME</a>
+         </div>
+       </div>
+     </div>
+   </main>
+{% endblock %}

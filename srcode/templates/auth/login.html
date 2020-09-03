@@ -1,0 +1,40 @@
+{% from "auth/_refactor_forms.html" import render_login_forms %}
+{% extends "layout3.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="" novalidate>
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Welcome back!</legend>
+                <p class="text-center">Login with your social media account</p>
+                <div class="text-center social-btn">
+                    <a href= "{{ url_for('login_facebook') }}" class="btn btn-secondary"><i class="fa fa-facebook"></i>&nbsp; Facebook</a>
+                    <a href="{{ url_for('auth.login_twitter') }}" class="btn btn-info"><i class="fa fa-twitter"></i>&nbsp; Twitter</a>
+                 <a href="{{ url_for('auth.login_google')  }}" class="btn btn-danger"><i class="fa fa-google"></i>&nbsp; Google</a>
+               </div>
+               <div class="or-seperator"><i>or</i></div>
+                    {{ render_login_forms(form.email, email) }}
+                   
+                    {{ render_login_forms(form.password, password) }}
+                <div>
+                    <div class="form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        {{ form.remember.label(class="form-check-label") }}
+                    </div> 
+                </div>
+                <div>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info") }}
+                    </div>
+                </div>
+                <small class="text-muted">
+                    Need An Account? <a class="ml-2" href="{{ url_for('auth.register') }}">Sign Up Now</a>
+                </small>
+                <small class="text-muted ml-2">
+                    <a href="{{url_for('auth.password_reset_request')}}">Forgot Password?</a>
+                </small> 
+            </fieldset>   
+        </form>
+    </div>
+        
+{% endblock content %}

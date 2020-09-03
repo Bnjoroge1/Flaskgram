@@ -1,0 +1,10 @@
+<p>Hey {{ user.username }}!</p>
+<p>
+   One of the people you follow has created a new post {{ date_posted }}!
+
+</p>
+<p>Check it it out below!</p>
+<p>{{ url_for('user.post', post_id =post.id, _external=True) }}</p>
+
+<p>Sincerely,</p>
+<p>The Microblog Team</p>

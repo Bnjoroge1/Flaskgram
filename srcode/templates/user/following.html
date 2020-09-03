@@ -1,0 +1,19 @@
+{% extends "layout3.html" %}
+{% block content %}
+          {% for followed in selected_user_following %}
+               <div class="content-section">
+               <div class="media">
+               <div class="media-body"> 
+               <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + followed.image_file) }}">
+               <a class="mr-2" href="{{ url_for('user.user_profile', username=followed.username) }}">{{ followed.username }}
+               </a>
+               {% if not current_user.is_following(followed) and current_user != selected_user %}
+           
+               
+                {% endif %}
+     
+               </div>
+               </div>
+          </div>
+          {% endfor %}   
+{% endblock content%}

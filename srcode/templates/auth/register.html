@@ -1,0 +1,55 @@
+{% from 'auth/_refactor_forms.html' import  render_form_fields %}
+
+{% extends "layout3.html" %}
+
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="" novalidate>
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Join Today!</legend>
+                <div class="d-flex justify-content-center mt-1">
+                    <div class="social-btn text-center">
+                        <a href="{{url_for('login_facebook')}}" class="btn btn-primary btn-lg"><i class="fa fa-facebook"></i> Facebook</a>
+                        <a href="{{ url_for('auth.login_twitter') }}" class="btn btn-info btn-lg"><i class="fa fa-twitter"></i> Twitter</a>
+                        <a href="{{url_for('auth.login_google')}}" class="btn btn-danger btn-lg"><i class="fa fa-google"></i> Google</a>
+                        <a href="{{url_for('auth.login_github')}}" class="btn btn-primary btn-lg"><i class="fa fa-github"></i>Github</a>
+                   </div>
+                </div>
+                <div class="or-seperator"><b>or</b></div>
+                <div class="form-group">
+                    {{ render_form_fields(form.username)}}
+                </div>
+
+                <div class="form-group">
+                    {{ render_form_fields(form.email)}}
+                </div>
+
+                <div class="form-group">
+                    {{ render_form_fields(form.password)}}
+                </div>
+
+                <div class="form-group">
+                    {{ render_form_fields(form.confirm_password)}}
+                </div>
+               
+                
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+                
+            </div>
+            <small class='text-muted'>
+               By registering you agree to the use of data in accordance with the GDPR and our terms and conditions.
+            </small>
+            
+            <div class="border-top pt-3">
+                <small class="text-muted">
+                    Already Have An Account? <a class="ml-2" href="{{ url_for('auth.login') }}">Sign In</a>
+                </small>
+            </div>
+        
+        </form>
+</div>
+    
+{% endblock content %}

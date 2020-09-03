@@ -1,0 +1,18 @@
+.env
+.env_bak
+.__pycache__/
+.__pycache__
+.pytest_cache
+instance/
+.flaskenv
+.vscode
+
+
+
+#CFG files
+messages.pot
+babel.cfg
+logs
+site.db
+site.sql
+dump.sql

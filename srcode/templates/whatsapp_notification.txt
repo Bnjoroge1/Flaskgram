@@ -1,0 +1,8 @@
+Hey {{ user.username }}
+One of your followers just posted a new post.
+
+Login to your account to view it
+
+
+Regards,
+Flaskgram Team

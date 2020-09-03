@@ -1,0 +1,82 @@
+{% import 'flask_discussion/isso.html' as isso %}
+{% extends "layout3.html" %}
+{% block content %}
+
+<article class="media content-section">
+  <img class="rounded-circle article-img"
+    src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+  <div class="media-body">
+    <div class="article-metadata">
+      <a class="mr-2" href="{{ url_for('user.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
+      <small class="text-muted">{{ post.date_posted.strftime('%d, %B, %Y') }}</small>
+    </div>
+   
+    <h2 class="article-title">{{ post.title }}</h2>
+    <p class="article-content">{{ post.content }}</p>
+
+    <div>
+      {% if post.author != current_user %}
+        {% if current_user.is_authenticated %}
+          {% if current_user.has_liked_post(post) %}
+            <a class="btn btn-info btn-sm mt-1 mb-1"
+            href="{{ url_for('user.like_action', post_id=post.id, action='unlike')}}"> <i onclick="myFunction(this)" class="fa fa-thumbs-down"></i>
+            {{ isso.render_comments("my-page", "Page title") }}
+            <span class="badge"> {{ post.likes.count() }}</span></a>
+            {{ share.create(title='Wanna Share the post?')}}
+          {% else %}
+                <a class="btn btn-success btn-sm mt-1 mb-1"
+                  href="{{ url_for('user.like_action', post_id=post.id, action='like') }}"><i onclick="myFunction(this)" class="fa fa-thumbs-up"></i> <span class="badge"> {{ post.likes.count() }}</span>
+                 </a>
+                {{ share.create(title='Wanna Share the post?')}}
+          {% endif %}
+      {% endif %}
+ 
+      
+    </div>
+
+    <a class="btn btn-sm mt-1 mb-1 btn-primary" data-toggle="collapse" href="#collapseExample" role="button"
+      aria-expanded="false" aria-controls="collapseExample">
+      Comment?
+    </a>
+
+    <button class="btn btn-sm mt-1 mb-1 btn-primary" id="stripeButton"> Tip the author?</button>
+    <div class="collapse" id="collapseExample">
+      <div class="card card-body">
+        <p>When commenting please adhere to the community guidelines!
+        </p>
+        <a class="btn btn-success btn-sm mt-1 mb-1" href="{{ url_for('user.create_comment', post_id=post.id) }}">Comment
+        </a>
+      </div>
+    </div>
+
+    {% else %}
+    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('user.update_post', post_id=post.id) }}">Update</a>
+    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal"
+      data-target="#deleteModal">Delete</button>
+
+    {% endif %}
+
+  </div>
+</article>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <form action="{{ url_for('user.delete_post', post_id=post.id) }}" method="POST">
+          <input class="btn btn-danger" type="submit" value="Delete">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

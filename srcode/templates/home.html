@@ -1,0 +1,115 @@
+{% extends "layout3.html" %}
+{% block content %}
+<br>
+<div class="card">
+     <h5 class="card-header">Feed</h5>
+     <div class="card-body">
+       <h5 class="card-title">{{ _('Hi, %(username)s!', username=current_user.username)}} </h5>
+       <p class="card-text"> This is your personalised feed containing posts from users you are following</p>
+       <a href="#" class="btn btn-primary">Featured Post</a> 
+     </div>
+     <br>
+     
+   </div>
+   <br>  
+    {% for post in posts.items %}
+    <div class="card w-85">
+      <div><img class="rounded-circle article-img" src="https://flaskium.s3.amazonaws.com/profile_pics/Profile_pics/{{ post.author.image_file }}">
+      <a class="mr-2" href="{{ url_for('user.user_profile', username=post.author.username) }}">{{ post.author.username }}</a> <small class="text-muted">{{ moment(post.date_posted).fromNow()}}</small> 
+      <button type="button" class="btn btn-success-outline btn-sm m-1 float-right" data-toggle="modal"
+      data-target="#deleteModal">...</button>
+      <!-- Modal -->
+      <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+      <div class="modal-content">
+      <div class="modal-header">
+        
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
+    <a href="{{ url_for('user.post', post_id =post.id) }}" class="btn btn-secondary"> Go to post?</a>
+   {%if current_user.receive_notifs%} <a class="btn btn-info" href="{{ url_for('user.post_notifs', username=post.author.username,action='no') }}">Unsubscribe me!</a> {% else %} <a class="btn btn-success" href="{{ url_for('user.post_notifs', username=post.author.username, action = 'yes') }} ">Subscribe me!</a>  {% endif %}
+    {{ share.create(title='Share the post?')}}
+  </div>
+   
+      </div>
+    </div>
+    </div>
+    </div>
+      <img class="card-img-top" src="https://flaskium.s3.amazonaws.com/profile_pics/Post/{{ post.post_image}}" alt="post-image">
+     
+      <small class="text-muted">{{ post.date_posted.strftime('%d, %B, %Y') }}</small>
+      <div class="card-body">
+        <p class="card-text">{{ post.content }}</p>
+        <small class="card-text">  {{ post.tag }}</small>
+      </div>
+      {% if post.language and post.language != g.locale %}
+        <a href="#">{{ _('Translate') }}</a>
+      {% endif %}
+      <div>
+        {% if post.author != current_user %}
+          {% if current_user.is_authenticated %}
+          <div class='float-right'>
+            {% if current_user.has_saved_post(post) %}
+            <a href="{{ url_for('user.bookmark', post_id=post.id, action = 'save') }}">
+            <img src="https://img.icons8.com/ios/35/000000/bookmark-ribbon.png"/></a>
+            {% else %}
+            <a href="{{ url_for('user.bookmark', post_id=post.id, action = 'unsave') }}">
+            <img src="https://img.icons8.com/material-rounded/24/000000/bookmark-ribbon.png"/></a>
+            {% endif %}
+          </div>
+            {% if current_user.has_liked_post(post) %}
+              <a class="btn btn-info btn-sm mt-1 mb-1"
+              href="{{ url_for('user.like_action', post_id=post.id, action='unlike')}}"> <i onclick="myFunction(this)" class="fa fa-thumbs-down"></i>
+              <span class="badge"> {{ post.likes.count()  }}</span></a>
+              
+            {% else %}
+                  <a class="btn btn-success btn-sm mt-1 mb-1"
+                    href="{{ url_for('user.like_action', post_id=post.id, action='like') }}"><i onclick="myFunction(this)" class="fa fa-thumbs-up"></i> <span class="badge"> {{ post.likes.count() }}</span>
+                   </a>
+                 
+            {% endif %}
+        {% endif %}
+        <a class="btn btn-sm mt-1 mb-1 btn-primary" data-toggle="collapse" href="#collapseExample" role="button"
+        aria-expanded="false" aria-controls="collapseExample">
+        Comment?
+      </a>
+  
+      <button class="btn btn-sm mt-1 mb-1 btn-primary" id="stripeButton"> Tip the author?</button>
+      <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+          <p>When commenting please adhere to the community guidelines!
+          </p>
+          <a class="btn btn-success btn-sm mt-1 mb-1" href="{{ url_for('user.create_comment', post_id=post.id) }}">Comment
+          </a>
+        </div>
+      </div>
+  
+      {% else %}
+      <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('user.update_post', post_id=post.id) }}">Update</a>
+      <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal"
+        data-target="#deleteModal">Delete</button>
+  
+    {% endif %}
+        
+      </div>
+  
+    </div>
+     <br>
+  {% endfor %}
+    {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if posts.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('user.home', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('user.home', page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {% endfor %}
+{% endblock content %}

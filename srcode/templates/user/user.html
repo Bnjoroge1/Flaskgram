@@ -1,0 +1,134 @@
+{% extends "layout3.html" %}
+{% block content %}
+<title> {{user.username }} account </title>
+<div class="content-section">
+     <div class="media">
+       <img class="rounded-circle account-img" src="{{ image_file }}">
+       <div class="media-body">
+              <div>
+               <h2 class="account-heading">{{ _(user.username) }}</h2>
+               {% if user.is_following(current_user) and current_user != user%}
+               <span class="badge badge-secondary">Follows you</span>
+               {% endif %}
+               </div>
+
+               
+               <p class= "text-secondary"> Last seen {{ moment(user.last_seen).fromNow()}}
+               <p class='text-secondary'> Joined {{ moment(user.registered_on).fromNow() }}</p>
+               <p class = "text-secondary">  {{ _(user.bio) }}</p>
+               <div><a href ="{{url_for('user.all_followers', username=user.username)}}" class="btn btn-outline danger">{{ no_followers }} followers</a> <a class= "btn btn-outline danger"href="{{url_for('user.get_following', username=user.username)}}">{{ user_following }} following </a> <a href ="#" class='text-secondary'> {{ posts.total }} posts </a> </div>
+               
+        <div>
+        <div>
+          {% if not exist_follows and user!= current_user %}   
+          <a class="btn-outline danger" href="{{ url_for('user.all_followers', username=user.username) }}">
+            Followed by 
+            {% for user_follower in exist_intersection  %}
+            <strong>{{ user_follower.username }},</strong>
+            {% endfor %}
+                {% if no_exist_intersection > 3%}
+                    and  {{ no_exist_intersection - 3 }} more
+                {% endif %}
+          {% elif exist_follows and user != current_user %}
+           Not followed by anyone you follow
+            {% endif %}
+          </p>
+        </div>
+        
+            {% if current_user.is_authenticated %}
+                {% if user == current_user and current_user.confirmed %}
+                   
+                    <a class= 'btn btn-success btn-sm mt-1 mb-1' href="{{ url_for('user.user_posts', username=user.username)}}"> Check out your other posts</a>     
+                {% elif not current_user.confirmed and user == current_user %}
+                  <a class= 'btn btn-danger btn-sm mt-1 mb-1' href="{{ url_for('auth.unconfirmed')}}"> Please confirm your account</a>   
+                {% endif %}
+            {% if current_user.is_following(user) and current_user != user  %}
+            <button type="button" class="btn btn-success btn-sm m-1" data-toggle="modal"
+            data-target="#deleteModal">Following</button>
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Unfollow? {{user.username}} </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('user.follow_action', username=user.username, action = 'unfollow') }}" method="POST">{{ form.hidden_tag() }}{{ form.submit(class='btn btn-success')}}
+          </form>     
+              </div>
+            </div>
+          </div>
+          </div>
+            {% elif not current_user.is_following(user) and current_user != user %}
+            <p>
+                <form action="{{ url_for('user.follow_action', username=user.username, action='follow') }}" method="POST">
+                    {{ form.hidden_tag() }}
+                    {{ form.submit(class = 'btn btn-outline-info', value='follow') }}
+                </form>   
+            </p>
+            <a class= 'btn btn-success btn-sm mt-1 mb-1' href="{{ url_for('user.user_posts', username=user.username)}}"> Check out this user's posts</a>
+            
+               
+            {% endif %}
+        </div>
+
+         <div>
+        {% endif %} 
+        {% if user == current_user and current_user.admin %}
+           <a class ='btn btn-info btn-sm mt-1 mb-1'href="{{ url_for('user.edit_profile_admin', id = user.id)  }}"> Edit Your Profile</a>
+        {% elif current_user == user and not current_user.admin %}
+          <p><a class = "btn btn-success btn-sm mt-1 mb-1" href="{{ url_for('user.account') }}">Edit your profile</a></p>
+        {% endif %}
+         
+         </div>
+     </div></div></div>
+     <div>
+     <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">{{user.username}} Posts</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        {% for post in posts.items %}
+        <article class="media content-section">
+          <img class="rounded-circle article-img" src="https://flaskium.s3.amazonaws.com/profile_pics/Profile_pics/{{ post.author.image_file }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="{{ url_for('user.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
+              <small class="text-muted">{{ moment(post.date_posted).fromNow() }}</small>
+            </div>
+            <div>
+            <img src="https://flaskium.s3.amazonaws.com/profile_pics/Post/{{ post.post_image}}" alt="{{post.author.username }}-image">
+            <h2><a class="article-title" href="{{ url_for('user.post', post_id=post.id) }}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content }}</p>
+          </div>
+        </div>
+        </article>
+    {% endfor %}
+      </div>
+      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+      <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+        <a href="mailto:{{ user.email }}"> Email </a>
+
+      </div>
+    </div>
+     </div>
+
+
+
+
+
+
+{% endblock content%}

@@ -1,0 +1,22 @@
+{% macro render_account_forms(field, form) %}
+<div class="form-group">
+     {{ field.label(class="form-control-label") }}
+    {% if form == picture %}
+          {{ form.picture(class="form-control-file") }}
+     {% endif %}
+     {% if field.errors %}
+          {{ field(class="form-control form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+               {% for error in field.errors %}
+                    <span>{{ error }}</span>
+               {% endfor %}
+          </div>
+     {% else %}
+          {% if form == bio %}
+               <p class = "text-secondary"> {{ form.bio(class='form-control form-control-sm') }} 
+          {% else%}
+          {{ field(class="form-control form-control-lg") }}
+          {% endif %}
+     {% endif %}
+</div> 
+{% endmacro %}

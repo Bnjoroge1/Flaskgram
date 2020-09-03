@@ -1,0 +1,154 @@
+body {
+     margin-top: 5rem;
+   }
+   
+   h1, h2, h3, h4, h5, h6 {
+     color: #444444;
+   }
+   .avatar {
+    vertical-align: middle;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+  /* The progress container (grey background) */
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background: #ccc;
+}
+
+/* The progress bar (scroll indicator) */
+.progress-bar {
+  height: 8px;
+  background: blue;
+  width: 0%;
+}
+   
+   .bg-steel {
+     background-color: #5f788a;
+   }
+   
+   .site-header .navbar-nav .nav-link {
+    color:black;
+  }
+   
+   .site-header .navbar-nav .nav-link:hover {
+     color: #ffffff;
+   }
+   
+   .site-header .navbar-nav .nav-link.active {
+     font-weight: 500;
+   }
+   
+   .content-section {
+     background:white;
+     padding: 10px 20px;
+     border: 1px solid #dddddd;
+     border-radius: 3px;
+     margin-bottom: 20px;
+   }
+   
+   .article-title {
+     color: #444444;
+   }
+   
+   a.article-title:hover {
+     color: #428bca;
+     text-decoration: none;
+   }
+   
+   .article-content {
+     white-space: pre-line;
+   }
+   
+   .article-img {
+     height: 65px;
+     width: 65px;
+     margin-right: 16px;
+   }
+   
+   .article-metadata {
+     padding-bottom: 1px;
+     margin-bottom: 4px;
+     border-bottom: 1px solid #e3e3e3
+   }
+   
+   .article-metadata a:hover {
+     color: #333;
+     text-decoration: none;
+   }
+   
+   .article-svg {
+     width: 25px;
+     height: 25px;
+     vertical-align: middle;
+   }
+   
+   .account-img {
+     height: 125px;
+     width: 125px;
+     margin-right: 20px;
+     margin-bottom: 16px;
+   }
+   
+   .account-heading {
+     font-size: 2.5rem;
+   }
+   .dot {
+     height: 50px;
+     width: 50px;
+     background-color: #ad63b9;
+     border-radius: 50%;
+     display: inline-block
+ }
+ .social-btn .btn {
+	color: #fff;
+	margin: 10px 0 0 15px;
+	font-size: 15px;
+	border-radius: 50px;
+	font-weight: normal;
+	border: none;
+	transition: all 0.4s;
+}	
+.social-btn .btn:first-child {
+	margin-left: 0;
+}
+.social-btn .btn:hover {
+	opacity: 0.8;
+}
+.social-btn .btn-primary {
+	background: #507cc0;
+}
+.social-btn .btn-info {
+	background: #64ccf1;
+}
+.social-btn .btn-danger {
+	background: #df4930;
+}
+.social-btn .btn i {
+	float: left;
+	margin: 3px 10px;
+	font-size: 20px;
+}
+.or-seperator {
+	margin: 50px 0 15px;
+	text-align: center;
+	border-top: 1px solid #e0e0e0;
+}
+.or-seperator b {
+	padding: 0 10px;
+	width: 40px;
+	height: 40px;
+	font-size: 16px;
+	text-align: center;
+	line-height: 40px;
+	background: #fff;
+	display: inline-block;
+	border: 1px solid #e0e0e0;
+	border-radius: 50%;
+	position: relative;
+	top: -22px;
+	z-index: 1;
+}
+

@@ -1,0 +1,18 @@
+{% extends "layout3.html" %}
+{% block content %}
+          {% for follower in selected_user.followers %}
+          <div class="content-section">
+          <div class="media">
+          <div class="media-body"> 
+               <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + follower.image_file) }}">
+               <a class="mr-2" href="{{ url_for('user.user_profile', username=follower.username) }}">{{ follower.username }}
+               </a>
+          </div>
+          </div>
+          </div>
+          {% endfor %}
+      
+
+
+
+{% endblock content%}

@@ -1,0 +1,41 @@
+{% macro render_form_fields(field)  %}
+
+     <div class="form-group">
+          {{ field.label(class="form-control-label") }}
+          
+          {% if field.errors %}
+               {{ field(class="form-control form-control-lg is-invalid") }}
+               <div class="invalid-feedback">
+                    {% for error in field.errors %}
+                         <span>{{ error }}</span>
+                    {% endfor %}
+               </div>
+          {% else %}
+               {{ field(class="form-control form-control-lg") }}
+          {% endif %}
+     </div>
+{% endmacro %}
+
+{% macro render_login_forms(field, form)%}
+<div class="form-group">
+     {{ field.label(class="form-control-label") }}
+    {% if form == email %}
+          <i class="fa fa-user"></i> 
+    {% elif form == password %}
+          <i class="fa fa-lock"></i> 
+     {% endif %}
+     {% if field.errors %}
+          {{ field(class="form-control form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+               {% for error in field.errors %}
+                    <span>{{ error }}</span>
+               {% endfor %}
+          </div>
+     {% else %}
+     
+          {{ field(class="form-control form-control-lg") }}
+     {% endif %}
+</div> 
+{% endmacro %}
+
+
