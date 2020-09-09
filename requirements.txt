@@ -52,10 +52,14 @@ redis==3.5.3
 requests==2.23.0
 rq==1.5.0
 six ==1.11.0
-stripe==2.50.0
 Werkzeug==1.0.1
 WTForms==2.3.1
 python-dotenv==0.14.0
 pymysql == 0.10.0
 isso==0.12.2
 pytest==6.0.1
+elasticsearch== 7.9.1
+celery==4.4.6
+Flask-DebugToolbar==0.11.0
+flask-debugtoolbar-warnings==0.1.0
+flask-redis==0.4.0

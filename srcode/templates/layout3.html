@@ -4,8 +4,6 @@
      <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1,shrink-to-fit = no">
 <!-- Bootstrap CSS -->
-    <script src="https://js.stripe.com/v3"></script>
-    <script type = 'text/javascript' src= "{{ url_for('static', filename='payments.js') }} "></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -19,7 +17,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     
     {% if title %}
-        <title>Flask Blog - {{ title }}</title>
+        <title>Flaskgram - {{ title }}</title>
     {% else %}
         <title>Flaskium</title>
     {% endif %}
@@ -33,7 +31,7 @@
      
 <nav class="navbar navbar-expand-xl navbar-light bg-light fixed-top">
 <div class = 'container'>
-	<a href="#" class="navbar-brand"><i class="fa fa-cube"></i>Flasgram<b> Social Network</b></a>
+	<a href="#" class="navbar-brand"><i class="fa fa-cube"></i>Flaskgram<b> Social Network</b></a>
 	<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
 		<span class="navbar-toggler-icon"></span>
      </button>
@@ -52,15 +50,21 @@
 					<a href="#" class="dropdown-item">Digital Marketing</a>
 				</div>
 			</div>
-			<a href="#" class="nav-item nav-link active">Community</a>
+			<a href="{{url_for('community.community') }}" class="nav-item nav-link active">Community</a>
 			
 		</div>
-		<form class="navbar-form form-inline">
-			<div class="input-group search-box">								
-				<input type="text" id="search" class="form-control" placeholder="Search by Name">
-				<span class="input-group-addon"><i class="material-icons">&#xE8B6;</i></span>
-			</div>
-		</form>
+		
+			
+    {% if g.search_form %}
+        <form class="navbar-form form-inline" method="get"
+                      action="{{ url_for('user.search') }}">
+          
+                  {{ g.search_form.q(size=20, class='form-control',
+                      placeholder=g.search_form.q.label.text) }}
+        <span class="input-group-addon"><i class="material-icons">&#xE8B6;</i></span>
+        </form>
+        {% endif %}
+  
 		<div class="navbar-nav ml-auto">
                {% if current_user.is_authenticated  %}
                <a href="{{ url_for('user.get_notifications',username=current_user.username) }}" class="nav-item nav-link active notifications"><i class="fa fa-bell-o"></i><span class="badge">{{ current_user.followers.count() + current_user.followed.count() }}</span></a>

@@ -1,14 +1,12 @@
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g
-from srcode import bcrypt, db, app
-from srcode.auth import bp
-from flask_babel import _, get_locale
-from srcode.auth.decorator import admin_required, check_confirmed, permission_required
+from srcode import bcrypt, db
+from srcode.auth import bp 
+from flask_babel import _
 from srcode.auth.forms import RegistrationForm, LoginForm, PasswordResetForm, PasswordResetRequestForm
-from srcode.models import User, Post, Comment, PostLike, SavedPosts
+from srcode.models import User
 from srcode.auth.token import confirm_token, generate_confirmation_token
 from srcode.auth.email import send_confirmation_email,send_password_reset_email
 from flask_login import login_user, current_user, logout_user, login_required
-from srcode.auth.oauth import OAuthSignIn, facebook_blueprint, github_blueprint, google_blueprint, twitter_blueprint
 import datetime, time
 from flask_dance.contrib.facebook import facebook
 from flask_dance.contrib.google import google
@@ -48,14 +46,13 @@ def login_github():
         flash(f"AWesome. You have logged in as {response.json()['email'].split('@')[0]}", 'success')
     login_user(user)
     flash(f'Welcome back,{user.username}!')
-    
     return redirect(url_for('home'))   
 
 @bp.route('/google/login')
 def login_google():
     if not google.authorized:
              return redirect(url_for('google.login'))
-    response = google.get('/oauth2/v1/userinfo')
+    response = google.get('/oBaseProxy2/v1/userinfo')
     user = User.query.filter_by(email=response.json()['email']).first()
     if not user:
         user = User(email=response.json()['email'], image_file=response.json().get('picture'), username= response.json().get('email').split('@')[0], social= response.json().get('sub'))
@@ -86,20 +83,19 @@ def login_twitter():
 @bp.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('user.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user_email = form.email.data
-        user = User(username=form.username.data, email=user_email, password=hashed_password, confirmed = False, registered_on = datetime.datetime.now())
+        user = User(username=form.username.data, email=user_email, confirmed = False, password= hashed_password, registered_on = datetime.datetime.now())
+        #user.set_user_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         token = generate_confirmation_token(user_email)
         confirm_url = url_for('auth.confirm_email', token=token, _external=True)
         html = render_template('auth/activate_email.html', confirm_url=confirm_url)
-        subject = "Please confirm your email"
-        send_confirmation_email(user_email, subject, html)
-        
+        send_confirmation_email(user_email, html) 
         flash('Your account has been created and an email verification link has been sent to your email! Please confirm the email to continue', 'success')
         return redirect(url_for('auth.unconfirmed'))
     return render_template('auth/register.html', title='Register', form=form)
@@ -122,12 +118,13 @@ def confirm_email(token):
         db.session.commit()
         flash('You have confirmed your account. Thanks!', 'success')
     return redirect(url_for('home'))
+
 @bp.route('/resend_confirmation')
 @login_required
 def resend_confirmation():
     token = generate_confirmation_token(current_user.email)
     confirm_url = url_for('auth.confirm_email', token=token, _external=True)
-    html = render_template('auth/activate_email.html', confirm_url=confirm_url)
+    html = render_template('auth/ativate_email.html', confirm_url=confirm_url)
     subject = "Please confirm your email"
     send_confirmation_email(current_user.email, subject, html)
     flash('A new confirmation email has been sent.', 'success')
@@ -155,7 +152,7 @@ def password_reset_request():
     
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    if current_user.is_authenticated:
+    if current_user.is_authenticated():
         return redirect(url_for('home'))
     user = User.verify_reset_password_token(token)
     if not user:
@@ -169,14 +166,15 @@ def reset_password(token):
         flash('Success, your password has been reset. Login with the new password', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_confirm.html', form=form)
+
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('user.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and bcrypt.check_password_hash(user._password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash(f"Hi, {current_user.username}. Welcome back!", 'success')
@@ -190,5 +188,3 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
-
-

@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm, RecaptchaField
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField, IntegerField, MultipleFileField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from srcode.models import User, Role
+from wtforms import StringField, SubmitField, BooleanField, TextAreaField, SelectField
+from wtforms.validators import DataRequired, Length, Email, ValidationError
+from flask import request
+from srcode.models import User
 from flask_babel import lazy_gettext as _i  #Translating function for i8n and l6n support
 #from wtforms.fields.html5 import DateField. Used for dates uses a yy-mm-dd forms
 
@@ -50,6 +51,17 @@ class CommentForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Your comment', validators=[DataRequired()])
     submit = SubmitField('Post Comment')
+
+class SearchForm(FlaskForm):
+    '''Query is a prefix for standard search engines'''
+    q = StringField(_i('Search'), validators=[DataRequired()])
+
+    def __init__(self, *args, **kwargs):
+        if 'formdata' not in kwargs:
+            kwargs['formdata'] = request.args
+        if 'csrf_enabled' not in kwargs:
+            kwargs['csrf_enabled'] = False
+        super(SearchForm, self).__init__(*args, **kwargs)
 
 class follow_unfollowForm(FlaskForm):
     '''Implemented as a form to protect against CSRF attacks'''

@@ -5,6 +5,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 class Config(object):
      SECRET_KEY =  os.environ.get('SECRET_KEY')
      SQLALCHEMY_TRACK_MODIFICATIONS = False
+     SERVER_NAME = os.environ.get('SERVER_NAME')
      AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY', None)
      AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY', None)
      AWS_BUCKET = os.environ.get('AWS_BUCKET', None)
@@ -13,9 +14,8 @@ class Config(object):
      S3_BUCKET_LOCATION = f'https://{AWS_BUCKET}.s3.{S3_LOCATION}.amazonaws.com/'
      safaricom_consumer_key = os.environ.get('safaricom_consumer_key', None)
      safaricom_consumer_secret = os.environ.get('safaricom_consumer_secret', default=None)
-     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
-     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
-     TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
+     POSTS_PER_PAGE = os.environ.get('POSTS_PER_PAGE')
+     ELASTIC_SEARCH_URL = os.environ.get('ELASTIC_SEARCH_URL', None)
      stream_api_key = os.environ.get('stream_api_key', None)
      stream_secret_key = os.environ.get('stream_secret_key', None)
      GOOGLE_DISCOVERY_URL = (

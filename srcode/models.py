@@ -1,9 +1,10 @@
 from datetime import datetime
 import jwt, time
-from srcode import db, login_manager, manager, app
-from flask_login import UserMixin, AnonymousUserMixin
+from srcode import db, login_manager, manager, bcrypt
+from flask_login import UserMixin
 from flask import request
 from config import Config, EmailConfig
+from .essearch import add_to_index, remove_from_index, query_index
 
 
 
@@ -11,7 +12,7 @@ from config import Config, EmailConfig
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-#This is an association table that is not declared like other tables in the db schema. refer to self-referential db relationships
+''' This is an association table that is not declared like other tables in the db schema. refer to self-referential db relationships '''
 followers = db.Table('followers',
 db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
 db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
@@ -29,13 +30,51 @@ def create_admin():
         confirmed_on=datetime.datetime.now())
     )
     db.session.commit()
-class FacebookUser(db.Model):
-    social_id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(20), unique=True)
+class SearchableMixin(object):
+    '''Class that represents the SQLAlchemy objects of the Elastic Search'''
+    @classmethod
+    def search(cls, expression, page, per_page):
+        ''' Handles the core search fuctionality.
+        cls param is used to access the class objects without instatiating the objects.
+        expresion == actual query,
+        page and per pae arge used for pagination of the results'''
+        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        if total == 0:
+            return cls.query.filter_by(id=0), 0
+        results = [(value, field) for value, field in enumerate(range(len(ids)))]
+        return cls.query.filter(cls.id.in_(ids)).order_by(
+            db.case(results, value = cls.id)), total
+        
+    @classmethod
+    def before_commit(cls, session):
+        '''Used to perfom certain operations before committing to the database'''
+        session._changes = {
+            'add' : list(session.new),
+            'update' : list(session.dirty),
+            'delete' : list(session.deleted)
+        }
+    @classmethod
+    def after_commit(cls, session):
+        for obj in session._changes['add']:
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+        for obj in session._changes['update']:
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+        for obj in session._changes['delete']:
+            if isinstance(obj, SearchableMixin):
+                remove_from_index(obj.__tablename__, obj)
+        session._changes = None
+    @classmethod
+    def reindex(cls):
+        for obj in cls.query:
+            add_to_index(cls.__tablename__, obj)
 
-
+db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
+db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)          
 
 class User(db.Model, UserMixin):
+    '''User Clas INherits from both the standard UserMixin and the Searchable Mixin for full text Search'''
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.email == EmailConfig.MAIL_USERNAME:
@@ -53,20 +92,20 @@ class User(db.Model, UserMixin):
         (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
-        '''CHecks whether a user is an admininstrator'''
         return self.can(Permission.ADMINISTER)
 
+    #__searchable__ = ['body']
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True,index=True) #nullable=False)
-    email = db.Column(db.String(120), unique=True, index=True) #nullable=False)
+    username = db.Column(db.String(20), unique=True,index=True) 
+    email = db.Column(db.String(120), unique=True, index=True)
     image_file = db.Column(db.String(20), default= "default.png")
-    social = db.Column(db.String(64), unique=True) #nullable=False)
+    social = db.Column(db.String(64), unique=True) 
     phone_number = db.Column(db.Integer, unique = True)
-    password = db.Column(db.String(60), unique = True) #nullable=False)
+    password = db.Column(db.String(60), unique = True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     posts = db.relationship('Post', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='commenter', lazy= True)
-    bio =  db.Column(db.String(140), default= 'Hey there I am using this blog!')
+    bio =  db.Column(db.String(140), default= 'Hey there I am using this app!')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     registered_on = db.Column(db.DateTime, nullable=True)
     admin = db.Column(db.Boolean, default=False)
@@ -74,7 +113,11 @@ class User(db.Model, UserMixin):
     confirmed_on = db.Column(db.DateTime, nullable=True)
     receive_notifs = db.Column(db.Boolean, default = False)
     
-    
+    def set_user_password(self, form_password):
+        self._password = bcrypt.generate_password_hash(form_password)
+        
+    def check_password(self, form_password):
+        return bcrypt.check_password_hash(self._password, form_password)
     '''FOllowed relationship table is used to model the relationship between the user and the users s/he has followed'''
     followed = db.relationship(
         'User', secondary=followers,
@@ -117,7 +160,6 @@ class User(db.Model, UserMixin):
         {'reset_password': self.id, 'exp': time() + expires_in},
             Config.SECRET_KEY, algorithm='HS256').decode('utf-8')
 
-    '''static methd does not require the instance of a class'''
     @staticmethod
     def verify_reset_password_token(token):
         try:
@@ -149,6 +191,7 @@ class User(db.Model, UserMixin):
         return PostLike.query.filter(
             PostLike.user_id == self.id,
             PostLike.post_id == post.id).count() > 0
+
     saved = db.relationship(
             'SavedPosts',
             foreign_keys='SavedPosts.user_id',
@@ -176,7 +219,7 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def add_self_follows():
-        ''' adds a self following for each user. maes it easier to update the follower script post deployment'''
+        ''' adds a self following for each user. makes it easier to update the follower script post deployment'''
         for user in User.query.all():
             if not user.is_following(user):
                 user.follow(user)
@@ -241,14 +284,17 @@ class PostLike(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
 
 
-class Post(db.Model):
+
+class Post(db.Model, SearchableMixin):
+    __searchable__ = ['post_body']
+    __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, index=True, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     likes = db.relationship('PostLike', backref='post', lazy='dynamic')
-    #comments = db.relationship('Comment', backref = 'post', lazy = 'dynamic')
+    
     saved_posts = db.relationship('SavedPosts', backref='saved', lazy=True)
     language = db.Column(db.String(7))
     post_image = db.Column(db.String(30), nullable=True)
@@ -279,6 +325,6 @@ class Comment(db.Model):
 
 
 
-# db.create_all()
+
 
 #b.create_all(app=app)

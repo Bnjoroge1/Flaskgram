@@ -18,6 +18,7 @@ from rq import Queue
 from flask_moment import Moment
 from flask_babel import Babel, _
 from flask_discussion import Discussion
+from elasticsearch import Elasticsearch
 #Set db path
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -46,12 +47,7 @@ login_manager.login_message = _('You need to login first to access this page')
 #COnfigur Blue Prints
 
 # db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
-# pusher = Pusher(
-#     current_app_id = PusherConfig.pusher_current_app_id,
-#     key = PusherConfig.pusher_api_key,
-#     secret = PusherConfig.pusher_secret,
-#     cluster = PusherConfig.pusher_cluster,
-#     ssl = PusherConfig.ssl
+
 
 
 #turbolink = turbolinks()
@@ -93,6 +89,10 @@ def create_current_app(config_class = Config):
     bcrypt.init_app(app)
     discussion.init_app(app)
     #turbolink.init_app(app)
+    try:
+        app.elasticsearch = Elasticsearch([Config.ELASTIC_SEARCH_URL])
+    except  ConnectionRefusedError as connection_error:
+        return f'sth went wrong {connection_error}'
     from srcode.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
@@ -101,6 +101,9 @@ def create_current_app(config_class = Config):
 
     from srcode.user import bp as user_bp
     app.register_blueprint(user_bp)
+
+    from srcode.community import community as community_bp
+    app.register_blueprint(community_bp)
 
     from srcode.auth.oauth import google_blueprint as google_bp
     app.register_blueprint(google_bp)
@@ -113,7 +116,9 @@ def create_current_app(config_class = Config):
 
     from srcode.auth.oauth import twitter_blueprint as twitter_bp
     app.register_blueprint(twitter_bp)
-
+    with app.app_context():
+        db.create_all()
+        
     # with app.current_app_context():
     #     if db.engine.url.drivername == 'sqlite':
     #         migrate.init_app(app, db, render_as_batch=True)

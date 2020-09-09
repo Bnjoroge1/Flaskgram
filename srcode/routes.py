@@ -1,28 +1,23 @@
-import os, secrets, boto3, stripe, cloudinary
+from srcode.essearch import add_to_index
 from sqlalchemy import func
-from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g, current_app
 from srcode import app, db, bcrypt, share
-from .forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm, follow_unfollowForm, PasswordResetForm, PasswordResetRequestForm, UpdateAdminAccountForm
 from .models import SavedPosts, User, Post, Permission, Role, PostLike, SavedPosts
-from .token import generate_confirmation_token
-from .email import send_confirmation_email,send_password_reset_email, send_post_notification_email
-from flask_login import login_user, current_user, logout_user, login_required
-from .oauth import OAuthSignIn, facebook_blueprint, github_blueprint, google_blueprint, twitter_blueprint
+from flask_babel import get_locale
+from .user import bp
+from .user.forms import SearchForm
+from flask_login import current_user, login_required
 import time, datetime, requests
 from config import Config
-from flask_babel import _, get_locale
 from guess_language import guess_language
 from .uploads3 import save_picture
-from .decorator import check_confirmed, admin_required, permission_required
+#from .decorator import check_confirmed, admin_required, permission_required
 from flask_dance.contrib.facebook import facebook
 from flask_dance.contrib.google import google
 from flask_dance.contrib.twitter import twitter
 from flask_dance.contrib.github import github
 
 
-# @app.before_request
-# def before_request():
-#     g.locale = str(get_locale())
 
   
 # bp.register_blueprint(facebook_blueprint)
@@ -96,26 +91,41 @@ from flask_dance.contrib.github import github
 #     flash(f"Awesome. You have logged in as {response.json()['screen_name']}", 'success')
 #     return redirect(url_for('home'))   
 
-@app.route("/home")
-@login_required
-#@check_confirmed
-def home():
-    posts = current_user.followed_posts()
-    return render_template('home.html', title='About', posts=posts)
+# @app.route("/home")
+# @login_required
+# #@check_confirmed
+# def home():
+#     posts = current_user.followed_posts()
+#     return render_template('home.html', title='About', posts=posts)
   
 
-@app.route("/about")
-#@login_required
-#@check_confirmed
-def about():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=4)
-    return render_template('about.html',  posts=posts, title='All posts')  
-@app.route('/trending', methods = ['GET', 'POST'])
-def get_trending():
-    posts = db.session.query(Post).outerjoin(PostLike).group_by(Post.id).order_by(func.count().desc()).all() 
-    #posts = Post.query.order_by(Post.likes.desc())
-    return render_template('trending.html', posts = posts)
+# @app.route("/about")
+# #@login_required
+# #@check_confirmed
+# def about():
+#     page = request.args.get('page', 1, type=int)
+#     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=4)
+#     return render_template('about.html',  posts=posts, title='All posts')  
+# @app.route('/trending', methods = ['GET', 'POST'])
+# def get_trending():
+#     posts = db.session.query(Post).outerjoin(PostLike).group_by(Post.id).order_by(func.count().desc()).all() 
+#     #posts = Post.query.order_by(Post.likes.desc())
+#     return render_template('trending.html', posts = posts)
+
+# @bp.route('/search')
+# @login_required
+# def search():
+#     if not g.search_form.validate():
+#         return redirect(url_for('home'))
+#     page = request.args.get('page', 1, type=int)
+#     posts, total = Post.search(g.search_form.q.data, page,
+#                                current_app.config['POSTS_PER_PAGE'])
+#     next_url = url_for('search', q=g.search_form.q.data, page=page + 1) \
+#         if total > page * current_app.config['POSTS_PER_PAGE'] else None
+#     prev_url = url_for('search', q=g.search_form.q.data, page=page - 1) \
+#         if page > 1 else None
+#     return render_template('search.html', title=_('Search'), posts=posts,
+#                            next_url=next_url, prev_url=prev_url)
 # @bp.route('/admin')
 # @login_required
 # @admin_required

@@ -1,17 +1,32 @@
+from srcode.essearch import add_to_index
 from sqlalchemy import func
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g
 from srcode import db
-from .forms import UpdateAccountForm, PostForm, CommentForm, follow_unfollowForm, UpdateAdminAccountForm
-from srcode.models import SavedPosts, User, Post, Permission, Role, PostLike, SavedPosts, Comment
+from .forms import UpdateAccountForm, PostForm, CommentForm, follow_unfollowForm, UpdateAdminAccountForm, SearchForm
+from srcode.models import SavedPosts, User, Post, Role, PostLike, Comment
 from .email import send_post_notification_email
 from flask_login import current_user, login_required
 import requests
+from datetime import datetime
 from srcode.user import bp
 from config import Config
 from flask_babel import _
 from guess_language import guess_language
 from srcode.uploads3 import save_picture
 from .decorator import check_confirmed
+from flask_babel import _, get_locale
+
+
+@bp.before_app_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+        g.search_form = SearchForm()
+        for post in Post.query.all():
+            add_to_index('post', post)
+    g.locale = str(get_locale())  
+
 
 @bp.route("/home")
 @login_required
@@ -28,6 +43,20 @@ def about():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=4)
     return render_template('about.html',  posts=posts, title='All posts')  
+
+@bp.route('/search')
+@login_required
+def search():
+    if not g.search_form.validate():
+        return redirect(url_for('user.home'))
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(g.search_form.q.data, page, 5)
+    next_url = url_for('user.search', q=g.search_form.q.data, page=page + 1) \
+        if total > page * 5 else None
+    prev_url = url_for('user.search', q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template('search.html', title=_('Search'), posts=posts,
+                           next_url=next_url, total = total, prev_url=prev_url)  
 @bp.route('/trending', methods = ['GET', 'POST'])
 def get_trending():
     posts = db.session.query(Post).outerjoin(PostLike).group_by(Post.id).order_by(func.count().desc()).all() 

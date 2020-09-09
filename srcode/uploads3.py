@@ -4,8 +4,6 @@ from config import Config
 from threading import Thread
 from werkzeug.utils import  secure_filename
 import boto3
-from flask import flash
-from PIL import Image
 
 def save_async_picture(app, s3_send):
     '''FUcntionality to send emails asynchronously in the background, accepts both the meessage and the instance of the flask app.

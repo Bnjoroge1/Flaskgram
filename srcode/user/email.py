@@ -1,4 +1,4 @@
-from config import  Config, EmailConfig
+from config import EmailConfig
 from datetime import datetime
 from flask_mail import Message
 from flask import render_template, current_app
