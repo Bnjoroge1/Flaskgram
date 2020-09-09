@@ -34,7 +34,7 @@ google_blueprint = make_google_blueprint(
 )
 
 
-#FAcebook Login
+#Facebook Login
 facebook_blueprint = make_facebook_blueprint(
     client_id = Config.OAUTH_CREDENTIALS['facebook']['id'],
     client_secret  = Config.OAUTH_CREDENTIALS['facebook']['secret'],
