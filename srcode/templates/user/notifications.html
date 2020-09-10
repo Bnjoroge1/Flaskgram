@@ -2,10 +2,11 @@
 
 {% block content %}
 
-               <h1> Notifications</h1>
+               
               
-   
-          <div id="events">   </div>
-         
+   {%if current_user == user %}
+   <h1> Notifications</h1>
+          {{ user_notifications }}
+   {% endif %}
 
 {% endblock content %}

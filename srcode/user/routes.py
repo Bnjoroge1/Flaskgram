@@ -1,8 +1,11 @@
+from srcode.auth.decorator import admin_required
 from srcode.essearch import add_to_index
 from sqlalchemy import func
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g
-from srcode import db
+from srcode import cache, db
 from .forms import UpdateAccountForm, PostForm, CommentForm, follow_unfollowForm, UpdateAdminAccountForm, SearchForm
+from twilio.jwt.access_token import AccessToken
+from twilio.jwt.access_token.grants import VideoGrant
 from srcode.models import SavedPosts, User, Post, Role, PostLike, Comment
 from .email import send_post_notification_email
 from flask_login import current_user, login_required
@@ -23,8 +26,7 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
         g.search_form = SearchForm()
-        for post in Post.query.all():
-            add_to_index('post', post)
+        
     g.locale = str(get_locale())  
 
 
@@ -39,6 +41,7 @@ def home():
 @bp.route("/about")
 #@login_required
 #@check_confirmed
+@cache.cached(timeout=50)
 def about():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=4)
@@ -58,10 +61,12 @@ def search():
     return render_template('search.html', title=_('Search'), posts=posts,
                            next_url=next_url, total = total, prev_url=prev_url)  
 @bp.route('/trending', methods = ['GET', 'POST'])
+@cache.cached(timeout=50, key_prefix = 'trending_posts')
 def get_trending():
     posts = db.session.query(Post).outerjoin(PostLike).group_by(Post.id).order_by(func.count().desc()).all() 
     #posts = Post.query.order_by(Post.likes.desc())
-    return render_template('user/trending.html', posts = posts)
+    return render_template('trending.html', posts = posts)
+
 @bp.route('/<username>', methods=['GET'])
 @login_required
 def user_profile(username):
@@ -110,10 +115,10 @@ def account():
 @login_required
 def get_notifications(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user/notifications.html', user=user)
+    return render_template('user/notifications.html')
 
 @bp.route('/edit_admin_profile/<int:id>', methods=['GET', 'POST'])
-#@admin_required
+@admin_required
 @login_required
 def edit_profile_admin(id):
     user = User.query.get_or_404(id)
@@ -311,12 +316,13 @@ def get_following(username):
     selected_user = User.query.filter_by(username=username).first_or_404()
     selected_user_following = set(selected_user.followed)
     return render_template('user/following.html', selected_user_following=selected_user_following, selected_user=selected_user)
+
 @bp.route('/<string:username>/savedposts')
 @login_required
 def get_saved_posts(username):   
     selected_user = User.query.filter_by(username=username).first_or_404()
-    saved_posts = SavedPosts.query.filter_by(user_id = selected_user.id).first()
-    return render_template('user/savedposts.html', saved_posts = saved_posts, selected_user=selected_user)
+    user_saved_posts = SavedPosts.query.filter_by(user_id = selected_user.id).all()
+    return render_template('user/savedposts.html', user_saved_posts = user_saved_posts, selected_user=selected_user)
 
 @bp.route('/like/<int:post_id>/<action>')
 @login_required
@@ -331,6 +337,26 @@ def like_action(post_id, action):
         current_user.unlike_post(post)
         db.session.commit()
     return redirect(request.referrer)
+
+@bp.route('/videochat')
+@login_required
+def videochat():
+    return render_template('user/videochat.html')
+    
+@bp.route('/video/connect')
+@login_required
+def connect_video():
+    username = request.get_json(force=True).get('username')
+    if not username:
+        abort(401)
+    #Initaitve connection by getting the access key
+    token = AccessToken(Config.TWILIO_ACCOUNT_SID, Config.TWILIO_API_KEY, Config.TWILIO_SECRET_KEY, identity=username)     
+    token.add_grant(VideoGrant(room='Private Video Call'))
+    return {'token' : token.to_jwt().decode()}
+
+
+    
+    
 @bp.route('/bookmark/<int:post_id>/<action>')
 @login_required
 #@check_confirmed

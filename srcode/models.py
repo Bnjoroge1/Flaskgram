@@ -1,6 +1,6 @@
 from datetime import datetime
 import jwt, time
-from srcode import db, login_manager, manager, bcrypt
+from srcode import cache, db, login_manager, manager, bcrypt
 from flask_login import UserMixin
 from flask import request
 from config import Config, EmailConfig
@@ -49,7 +49,7 @@ class SearchableMixin(object):
     def before_commit(cls, session):
         '''Used to perfom certain operations before committing to the database'''
         session._changes = {
-            'add' : list(session.new),
+            'add' : list(session.new), 
             'update' : list(session.dirty),
             'delete' : list(session.deleted)
         }
@@ -85,12 +85,14 @@ class User(db.Model, UserMixin):
         '''Updates the last seen datetime now'''
         self.last_seen = datetime.utcnow()
         db.session.add(self)
+    
         '''A bitwise and operation that checks the given arguments and returns a bool value'''
+    @cache.memoize(10)
     def can(self, permissions):
         '''Check what a user can do'''
         return self.role is not None and \
         (self.role.permissions & permissions) == permissions
-
+    @cache.memoize(10)
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
@@ -133,15 +135,11 @@ class User(db.Model, UserMixin):
         if self.is_following(user):
             self.followed.remove(user)
 
+    @cache.memoize(10)
     def is_following(self, user):
         return self.followed.filter(
             followers.c.followed_id == user.id).count() > 0
-    
-    # @property.getter
-    # def get_followers(self, user):
-    #     people_follows = User.query.filter_by(followers = user.id)
-    # def get_followed(self, user):
-    #     people_followed= User.query.filter_by()
+
     def followed_posts(self):
         ''' Queries from the db for the posts belonging to users that current user heas followed and sorts them in a decending order by the time it was posted'''
         page = request.args.get('page', 1, type=int)
@@ -154,6 +152,7 @@ class User(db.Model, UserMixin):
         own_posts =  Post.query.filter_by(user_id = self.id)
         return followed.union(own_posts).order_by(
                 Post.date_posted.desc()).paginate(page=page, per_page=5) 
+
     '''Using jwt to validate password requests instead of itsdangerous'''
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
@@ -186,7 +185,7 @@ class User(db.Model, UserMixin):
             PostLike.query.filter_by(
                 user_id=self.id,
                 post_id=post.id).delete()
-    
+    @cache.memoize(10)
     def has_liked_post(self, post):
         return PostLike.query.filter(
             PostLike.user_id == self.id,
@@ -208,7 +207,7 @@ class User(db.Model, UserMixin):
             SavedPosts.query.filter_by(
                 user_id = self.id,
                 post_id = post.id).delete()
-
+    @cache.memoize(10)
     def has_saved_post(self, post):
         return SavedPosts.query.filter(
             SavedPosts.user_id == self.id,
@@ -251,8 +250,8 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
-
     @staticmethod
+    @cache.memoize(10)
     def insert_roles():
         roles = {
         'User': (Permission.FOLLOW |
@@ -298,8 +297,9 @@ class Post(db.Model, SearchableMixin):
     saved_posts = db.relationship('SavedPosts', backref='saved', lazy=True)
     language = db.Column(db.String(7))
     post_image = db.Column(db.String(30), nullable=True)
+    
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Post('{self.user_id}', '{self.date_posted}')"
 
 class SavedPosts(db.Model):
     id  = db.Column(db.Integer, primary_key = True)
@@ -311,20 +311,11 @@ class SavedPosts(db.Model):
         return f"Saved Post('{self.date_saved}', '{self.id}')"
 
 class Comment(db.Model):
-    
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
-    #post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
     
     def __repr__(self):
         return f"Comment('{self.title}', '{self.date_posted}')"
-
-
-
-
-
-
-
-#b.create_all(app=app)

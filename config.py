@@ -1,4 +1,4 @@
-import os, braintree, cloudinary
+import os
 from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
@@ -18,6 +18,9 @@ class Config(object):
      ELASTIC_SEARCH_URL = os.environ.get('ELASTIC_SEARCH_URL', None)
      stream_api_key = os.environ.get('stream_api_key', None)
      stream_secret_key = os.environ.get('stream_secret_key', None)
+     TWILIO_ACCOUNT_SID =  os.environ.get('TWILIO_ACCOUNT_SID')
+     TWILIO_API_KEY = os.environ.get('TWILIO_API_KEY')
+     TWILIO_SECRET_KEY = os.environ.get('TWILIO_SECRET_KEY')
      GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration")
      REC2ME_API_KEY = os.environ.get('REC2ME_API_KEY', None)
@@ -41,8 +44,7 @@ class Config(object):
         'client_secret' : os.environ.get('GITHUB_CLIENT_SECRET')
     }
 }
-     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') #or 'sqlite:///' + os.path.join(basedir, 'site.db')
-     #IMAGE_UPLOAD_DIR = cloudinary.uploader.upload(os.path.join(basedir, 'srcode/static/post_pics'), resource_type = 'auto')
+     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') 
      IMAGE_UPLOAD_DIR_Temp = os.path.join(basedir, 'srcode/static/post_pics')
      RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_COPY_SITE_KEY') or 'not-available'
      RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')  or 'not-available'
@@ -50,7 +52,6 @@ class Config(object):
      stripe_secret_key = os.environ.get('STRIPE_SECRET_KEY')
      stripe_product_id = os.environ.get('STRIPE_PRODUCT_ID')
      domain_url = os.environ.get('domain_url')
-     #TESTING = os.environ.get('TESTING') 
      LANGUAGES = ['en','sw', 'fr']
      MAX_FILE_lENGTH = os.environ.get('MAX_FILE_LENGTH')
 class EmailConfig(object):
@@ -72,9 +73,3 @@ class CloudinaryConfig(object):
     CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
     CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
 
-class PusherConfig(object):
-    pusher_app_id = os.environ.get('pusher_app_id')
-    pusher_api_key = os.environ.get('pusher_api_key')
-    pusher_secret = os.environ.get('pusher_secret')
-    pusher_cluster = os.environ.get('pusher_cluster')
-    ssl = True

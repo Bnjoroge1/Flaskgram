@@ -86,9 +86,10 @@ def register():
         return redirect(url_for('user.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        hashed_password = bcrypt.generate_password_hash(form.password.data)
         user_email = form.email.data
-        user = User(username=form.username.data, email=user_email, confirmed = False, password= hashed_password, registered_on = datetime.datetime.now())
+        user = User(username=form.username.data, email=user_email, confirmed = False, 
+        password= hashed_password, registered_on = datetime.datetime.now())
         #user.set_user_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -174,7 +175,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user._password, form.password.data):
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash(f"Hi, {current_user.username}. Welcome back!", 'success')

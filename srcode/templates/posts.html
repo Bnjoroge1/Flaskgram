@@ -4,23 +4,24 @@
 
 <article class="media content-section">
   <img class="rounded-circle article-img"
-    src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+    src="https://flaskium.s3.amazonaws.com/profile_pics/Profile_pics/{{ post.author.image_file }}">
   <div class="media-body">
     <div class="article-metadata">
       <a class="mr-2" href="{{ url_for('user.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
       <small class="text-muted">{{ post.date_posted.strftime('%d, %B, %Y') }}</small>
     </div>
    
-    <h2 class="article-title">{{ post.title }}</h2>
+    <img class="card-img-top" src="https://flaskium.s3.amazonaws.com/profile_pics/Post/{{ post.post_image}}" alt="post-image">
     <p class="article-content">{{ post.content }}</p>
 
     <div>
+      {{ isso.render_comments("my-page", "Page title") }}
       {% if post.author != current_user %}
         {% if current_user.is_authenticated %}
           {% if current_user.has_liked_post(post) %}
             <a class="btn btn-info btn-sm mt-1 mb-1"
             href="{{ url_for('user.like_action', post_id=post.id, action='unlike')}}"> <i onclick="myFunction(this)" class="fa fa-thumbs-down"></i>
-            {{ isso.render_comments("my-page", "Page title") }}
+            
             <span class="badge"> {{ post.likes.count() }}</span></a>
             {{ share.create(title='Wanna Share the post?')}}
           {% else %}

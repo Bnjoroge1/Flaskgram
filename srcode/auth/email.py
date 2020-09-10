@@ -11,7 +11,7 @@ def send_async_email(app, msg):
      Giving flask mail a context of our app so that it can access config values'''
      with app.app_context():
           mail.send(msg)
-def send_confirmation_email(to, template, subject = '[Flaskgram] PLwease Confirm your email'):
+def send_confirmation_email(to, template, subject = '[Flaskgram] Please Confirm your email'):
      msg = Message(subject=subject, sender = EmailConfig.DEFAULT_MAIL_SENDER, html = template, recipients= [to])    
      '''Using a thread classs and passing in the apps and msg as the args and start the thread'''
      Thread(target=send_async_email, args=(app, msg)).start()  
