@@ -175,7 +175,7 @@ crossorigin="anonymous"></script>
 
 <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script> 
-<!-- <script type="text/javascript" src="{{ url_for('static', filename='requests.js') }}"></script> -->
+<script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 <script src="https://commerce.coinbase.com/v1/checkout.js?version=201807">
 </script>
 <script data-isso="/prefix/"
@@ -197,50 +197,6 @@ crossorigin="anonymous"></script>
         data-isso-vote-levels=""
         data-isso-feed="false"
         src="/prefix/js/embed.js"></script>
-<script src="https://js.pusher.com/4.1/pusher.min.js"></script>
-<script>
-        // configure pusher
-const pusher = new Pusher('802c8151694a5497c15e', {
-          cluster: 'ap4', // gotten from Pusher app dashboard
-          encrypted: true // optional
-        });
-        // subscribe to `blog` public channel
-const channel = pusher.subscribe('flaskgram');
-
-channel.bind('post-added', data => {
-          appendToList(data);
-        });
-
-        // listen for relevant events
-channel.bind('post-added', eventHandler);
-
-         // handler function to show feed of events
-function eventHandler (data) {
-const html = `
-              <div class="box">
-                <article class="media">
-                  <div class="media-content">
-                    <div class="content">
-                      <p>
-                        <strong>Post ${data.event_name}</strong>
-                        <small>
-                          <p> New Post</p>
-                          
-                        </small>
-                      <strong> 
-                        
-                        ${data.author} has ${data.event_name} a new post
-                        
-                      </strong>
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              </div>`;
-          let list = document.getElementById("events")
-          list.innerHTML += html;
-        }
-    </script>   
-
+               
 </body>
 </html>

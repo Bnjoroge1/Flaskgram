@@ -4,7 +4,7 @@ from srcode.models import Permission, User
 from functools import wraps
 
 def check_confirmed(func):
-    '''Checks whether a certain user is confirmed'''
+    '''Checks whether a certain user is confirmed''' 
     @wraps(func)
     def decorated_function(*args, **kwargs):
         if  not current_user.confirmed:

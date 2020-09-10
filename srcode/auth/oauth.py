@@ -1,8 +1,5 @@
 from config import Config
-from flask import current_app, url_for, redirect, request
-from rauth import OAuth2Service, OAuth1Service
-import json, requests
-from srcode import app
+import requests
 from requests.auth import HTTPBasicAuth
 from flask_dance.contrib.facebook import make_facebook_blueprint
 from flask_dance.contrib.github import make_github_blueprint
@@ -16,6 +13,7 @@ consumer_secret = Config.safaricom_consumer_secret
 
 #Make request to generate access token
 def get_access_token():
+     
      api_endpoint = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
      response = requests.get(api_endpoint, auth= HTTPBasicAuth(consumer_key,consumer_secret)).json()
      return response['access_token']

@@ -1,7 +1,8 @@
 {%extends 'layout3.html' %}
 {% block content %}
-
-{% for savedpost in saved_posts.items %}
+<br>
+{% for savedpost in user_saved_posts %}
+<br>
 <div class="card w-85">
   <div><img class="rounded-circle article-img" src="https://flaskium.s3.amazonaws.com/profile_pics/Profile_pics/{{ savedpost.user.image_file }}">
   <a class="mr-2" href="{{ url_for('user.user_profile', username=savedpost.user.username) }}">{{ savedpost.user.username }}</a> <small class="text-muted">{{ moment(savedpost.saved.date_posted).fromNow()}}</small> 
@@ -36,14 +37,14 @@
     <p class="card-text">{{ savedpost.saved.content }}</p>
     <small class="card-text">  {{ savedpost.saved.tag }}</small>
   </div>
-  {% if savedpost.saved.language and savedpost.saved.post.language != g.locale %}
+  {% if savedpost.saved.language and savedpost.saved.language != g.locale %}
     <a href="#">{{ _('Translate') }}</a>
   {% endif %}
   <div>
     {% if selected_user != current_user %}
       {% if current_user.is_authenticated %}
       <div class='float-right'>
-        {% if current_user.has_saved_post(post) %}
+        {% if current_user.has_saved_post(savedpost.saved) %}
         <a href="{{ url_for('user.bookmark', post_id=post.id, action = 'save') }}">
         <img src="https://img.icons8.com/ios/35/000000/bookmark-ribbon.png"/></a>
         {% else %}
@@ -51,14 +52,14 @@
         <img src="https://img.icons8.com/material-rounded/24/000000/bookmark-ribbon.png"/></a>
         {% endif %}
       </div>
-        {% if current_user.has_liked_post(post) %}
+        {% if current_user.has_liked_post(savedpost.saved) %}
           <a class="btn btn-info btn-sm mt-1 mb-1"
           href="{{ url_for('user.like_action', post_id=post.id, action='unlike')}}"> <i onclick="myFunction(this)" class="fa fa-thumbs-down"></i>
           <span class="badge"> {{ savedpost.saved.likes.count()  }}</span></a>
           
         {% else %}
               <a class="btn btn-success btn-sm mt-1 mb-1"
-                href="{{ url_for('user.like_action', post_id=post.id, action='like') }}"><i onclick="myFunction(this)" class="fa fa-thumbs-up"></i> <span class="badge"> {{ savedpost.saved.likes.count() }}</span>
+                href="{{ url_for('user.like_action', post_id=savedpost.saved.id, action='like') }}"><i onclick="myFunction(this)" class="fa fa-thumbs-up"></i> <span class="badge"> {{ savedpost.saved.likes.count() }}</span>
                </a>
              
         {% endif %}
@@ -73,7 +74,7 @@
     <div class="card card-body">
       <p>When commenting please adhere to the community guidelines!
       </p>
-      <a class="btn btn-success btn-sm mt-1 mb-1" href="{{ url_for('user.create_comment', post_id=post.id) }}">Comment
+      <a class="btn btn-success btn-sm mt-1 mb-1" href="{{ url_for('user.create_comment', post_id=savedpost.saved.id) }}">Comment
       </a>
     </div>
   </div>

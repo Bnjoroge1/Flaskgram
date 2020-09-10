@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="video.css">
+    </head>
+    <body>
+        <h1>Video Chat 🎥</h1>
+        <form>
+            <label for="username">Name: </label>
+            <input type="text" name=”username” id="username">
+            <button id="join_leave">Join call</button>
+        </form>
+        <p id="count"></p>
+        <div id="vid-container" class="vid-container">
+            <div id="local" class="participant"></div>
+                 <div></div><div>Me</div>
+            <!-- more participants will be added dynamically here -->
+        </div>
+        
+        <script src="//media.twiliocdn.com/sdk/js/video/releases/2.3.0/twilio-video.min.js"></script>
+        <script src="{{ url_for('static', filename='main.js') }}"></script>
+    </body>
+</html>
+

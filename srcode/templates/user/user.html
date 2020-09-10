@@ -6,7 +6,7 @@
        <img class="rounded-circle account-img" src="{{ image_file }}">
        <div class="media-body">
               <div>
-               <h2 class="account-heading">{{ _(user.username) }}</h2>
+               <h2 class="account-heading">{{ _(user.username) }}</h2> 😆
                {% if user.is_following(current_user) and current_user != user%}
                <span class="badge badge-secondary">Follows you</span>
                {% endif %}
@@ -45,6 +45,9 @@
             {% if current_user.is_following(user) and current_user != user  %}
             <button type="button" class="btn btn-success btn-sm m-1" data-toggle="modal"
             data-target="#deleteModal">Following</button>
+            <a href="{{url_for('user.videochat') }}" class="btn btn-success btn-sm mt-1 mb-1">
+              Vidoe Chat?
+            </a>
             <!-- Modal -->
             <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
             aria-hidden="true">
@@ -121,6 +124,7 @@
       <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
       <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
         <a href="mailto:{{ user.email }}"> Email </a>
+
 
       </div>
     </div>

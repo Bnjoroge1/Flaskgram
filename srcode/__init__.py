@@ -1,28 +1,31 @@
-from flask import Flask, request, current_app, app
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
-from flask_share import Share
-from flask_migrate import Migrate
-from flask_script import Manager
-from flask_mail import Mail
-from sqlalchemy import MetaData
-import logging, os, requests
-from logging.handlers import SMTPHandler, RotatingFileHandler
-from flask_bootstrap import Bootstrap
-from config import CloudinaryConfig, Config, EmailConfig, PusherConfig
-from flask_turbolinks import turbolinks
-import redis
-from pusher import Pusher
-from rq import Queue
-from flask_moment import Moment
-from flask_babel import Babel, _
-from flask_discussion import Discussion
-from elasticsearch import Elasticsearch
+
+try:
+    from flask import Flask, request, current_app, app
+    from flask_sqlalchemy import SQLAlchemy
+    from flask_bcrypt import Bcrypt
+    from flask_login import LoginManager
+    from flask_share import Share
+    from flask_migrate import Migrate
+    from flask_script import Manager
+    from flask_mail import Mail
+    from sqlalchemy import MetaData
+    import logging, os
+    from logging.handlers import SMTPHandler, RotatingFileHandler
+    from flask_bootstrap import Bootstrap
+    from config import Config
+    from flask_turbolinks import turbolinks
+    import redis
+    from rq import Queue
+    from flask_moment import Moment
+    from flask_babel import Babel, _
+    from flask_discussion import Discussion
+    from elasticsearch import Elasticsearch
+    from flask_caching import Cache
+except:
+    raise ImportError
+
 #Set db path
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-#app = Flask(__name__)
 
 #Configure secret and api_key
 
@@ -58,7 +61,8 @@ q = Queue(connection=r)
 moment = Moment()
 babel = Babel()
 MAX_FILE_LENGTH = Config.MAX_FILE_lENGTH
-
+cache = Cache(config={
+    'CACHE_TYPE': 'simple'})
 # if not app.debug:
 #          if Config.MAIL_SERVER:
 #               auth = None
@@ -77,7 +81,7 @@ MAX_FILE_LENGTH = Config.MAX_FILE_lENGTH
 def create_current_app(config_class = Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-
+    cache.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
@@ -88,7 +92,7 @@ def create_current_app(config_class = Config):
     share.init_app(app)
     bcrypt.init_app(app)
     discussion.init_app(app)
-    #turbolink.init_app(app)
+    turbolinks(app)
     try:
         app.elasticsearch = Elasticsearch([Config.ELASTIC_SEARCH_URL])
     except  ConnectionRefusedError as connection_error:
