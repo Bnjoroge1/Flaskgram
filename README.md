@@ -1,9 +1,9 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
+ 
 </p>
 
-<h3 align="center">Project Title</h3>
+<h3 align="center">Flaskgram, a Flask-based Instagram Clone</h3>
 
 <div align="center">
 
@@ -34,7 +34,7 @@
 
 ## 🧐 About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+An attempt to clone the instagram Web Application
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
@@ -44,71 +44,95 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them.
 
+```python
+Python(>v3.6.x), Pip Package manager and a virtualenvironment manager(Pipenv, Poetry etc)
 ```
-Give examples
-```
-
 ### Installing
 
 A step by step series of examples that tell you how to get a development env running.
 
-Say what the step will be
-
+Clone the repo from github. 
+Create and Activate Virtual Environment(recommended) to avoid dependency resolution issues.
+If you intend to contribute, create a branch and checkout(switch) to it as your main working branch.
+Set up a database(SQLITE3 is fine.) and automatically load up the necessary .env variables
+Run the appropriate db migrations to load the db schema and keep track the versions of the db and flask translate {lang} ti run the i8n translations.
+Run the tests.
+Finally, launch flask run to run a dev server(or flask run--cert=adhoc to get an adhoc ssl certificate)o
+```bash
+#Clone the repo
+git clone https://
 ```
-Give the example
+Create and activate a virtualenvironment
+```python
+#if you use virtualenvwrapper, run virtualenv{name of venv dir} or pipenv {name of dir} otherwise
+python3 -m venv {name of venv} && source /path/to/venv/bin/activate/
 ```
-
-And repeat
-
+Install required dependencies and switch to your dev branch
+```python
+pip install -r requirements.txt
+cd {path/to/venvdir}
+git checkout -b {branch name}
 ```
-until finished
+Create a .env file and copy the env templates
+```bash
+touch .env && cp .env.template .env
 ```
-
-End with an example of getting some data out of the system or using it for a little demo.
-
-## 🔧 Running the tests <a name = "tests"></a>
-
-Explain how to run the automated tests for this system.
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+### Run db migrations and i8n translations
+```python
+flask db migrate && flask db upgrade
+flask translate fr
 ```
-Give an example
+```python
+nose2 tests/ && flask run
 ```
 
 ### And coding style tests
 
-Explain what these tests test and why
+I use [Black](https://pypi.org/project/black/#:~:text=Black%20is%20the%20uncompromising%20Python,energy%20for%20more%20important%20matters) code to format my code.
 
 ```
-Give an example
+black {name of dir}
 ```
 
-## 🎈 Usage <a name="usage"></a>
-
-Add notes about how to use the system.
+## 🎈 Features <a name="features"></a>
+1. Standard and Secure Registration/Login(with email verification and password resetting)
+2. Google/Facebook/Twitter/Github Oauthentication Flows
+3. CRUD posts with image and captioning functionality.
+4. Like/Unlike Posts
+5. Follow/Unfollow Users/Hashtags
+6. Bookmark Posts/Get post notifications via email and from your profile.
+7. Basic Feed personalization that allows you to view posts from users you follow.
+8. Recommend follow suggestions based on hashtags.
+9. Simple non-websocket private chat messaging feature.
+10. Basic Video Call 
+11. Multi-feature search functionality. Search by Users, Posts, Captions etc
 
 ## 🚀 Deployment <a name = "deployment"></a>
-
-Add additional notes about how to deploy this on a live system.
+Will update soon.
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 
-- [MongoDB](https://www.mongodb.com/) - Database
-- [Express](https://expressjs.com/) - Server Framework
-- [VueJs](https://vuejs.org/) - Web Framework
-- [NodeJs](https://nodejs.org/en/) - Server Environment
+- [Flask](https://www.mongodb.com/) - Web Framework
+- [MySQL](https://expressjs.com/) - Database
+- [Bootstrap4](https://vuejs.org/) - Frontend Framework
+- [ElasticSearch](https://nodejs.org/en/) - Search Engine
+## Contributing
+Pull requests are certainly welcome.
+I've used [Travis-CI](https://travis-ci.com) for my CI/CD workflows, so before your PR is merged into master I'll review it and Travis will run a test build.
 
-## ✍️ Authors <a name = "authors"></a>
-
-- [@kylelobo](https://github.com/kylelobo) - Idea & Initial work
-
-See also the list of [contributors](https://github.com/kylelobo/The-Documentation-Compendium/contributors) who participated in this project.
+## TODO/Bugs
+- [ ] Switch to pytest for testing and add more test coverage  
+- [ ] Add a whole lot more dynamism using Javascript
+- [ ] There's a bug with the search functionality. 
+- [ ] Add collaborative filter recommendation system for Posts/Users
+- [ ] Constantly refactor the codebase
+- [ ] Add Instagram-like filters.
 
 ## 🎉 Acknowledgements <a name = "acknowledgement"></a>
 
-- Hat tip to anyone whose code was used
+- Miguel Grinberg's Flask Mega Tutorial
 - Inspiration
 - References
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
