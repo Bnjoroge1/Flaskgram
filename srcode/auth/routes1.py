@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g
+from flask import render_template, request, url_for, flash, redirect
 from srcode import bcrypt, db
 from srcode.auth import bp 
 from flask_babel import _
@@ -125,7 +125,7 @@ def confirm_email(token):
 def resend_confirmation():
     token = generate_confirmation_token(current_user.email)
     confirm_url = url_for('auth.confirm_email', token=token, _external=True)
-    html = render_template('auth/ativate_email.html', confirm_url=confirm_url)
+    html = render_template('auth/activate_email.html', confirm_url=confirm_url)
     subject = "Please confirm your email"
     send_confirmation_email(current_user.email, subject, html)
     flash('A new confirmation email has been sent.', 'success')

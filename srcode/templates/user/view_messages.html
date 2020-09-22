@@ -1,0 +1,18 @@
+{% extends 'layout3.html' %}
+
+{% block content %}
+{% if current_user_messages.count()  == 0%}
+<p>
+     YOU HAVE NO MESSAGES YET!
+</p>
+{% else %}
+     {% for message in current_user_messages.items %}
+     <div class="card w-85">
+          <div><img class="rounded-circle article-img" src="https://flaskium.s3.amazonaws.com/profile_pics/Profile_pics/{{ message.author.image_file }}">
+          <a class="mr-2" href="{{ url_for('user.user_profile', username=message.author.username) }}">{{ message.author.username}} sent </a> <small class="text-muted">{{ moment(message.date_read).fromNow()}}</small> 
+     {% endfor %}
+     <div class="card-body">
+       <p class="card-text">{{ message.message }}</p>
+     </div>
+{% endif %}
+{% endblock content %}

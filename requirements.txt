@@ -7,12 +7,9 @@ boto3==1.14.3
 certifi ==2016.2.28
 cffi ==1.11.5
 click==7.1.2
-cloudinary==1.22.0
-facebook-sdk @ http://github.com/pythonforfacebook/facebook-sdk/tarball/master
 Flask==1.1.2
 Flask-Babel==1.0.0
 Flask-Bcrypt==0.7.1
-Flask-Bootstrap==3.3.7.1
 flask-Caching-1.9.0
 Flask-Dance==3.0.0
 Flask-Discussion==0.1.1
@@ -36,7 +33,6 @@ oauth2==1.9.0.post1
 oauthlib==3.0.1
 passlib==1.7.2
 Pillow==7.1.2
-pusher==3.0.0
 PyJWT==1.7.1
 PyMySQL==0.9.3
 pyngrok==4.1.8
@@ -56,6 +52,6 @@ pymysql == 0.10.0
 isso==0.12.2
 pytest==6.0.1
 elasticsearch== 7.9.1
-celery==4.4.6
+travis-encrypt==1.4.0
 Flask-DebugToolbar==0.11.0
 flask-redis==0.4.0

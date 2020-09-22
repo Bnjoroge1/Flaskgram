@@ -1,5 +1,5 @@
 from datetime import datetime
-import jwt, time
+import jwt, time, json
 from srcode import cache, db, login_manager, manager, bcrypt
 from flask_login import UserMixin
 from flask import request
@@ -18,18 +18,7 @@ db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
 db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
-@manager.command
-def create_admin():
-    """Creates the admin user."""
-    db.session.add(User(
-        username='admin',
-        email="ad@min.com",
-        password="adminpass",
-        admin=True,
-        confirmed=True,
-        confirmed_on=datetime.datetime.now())
-    )
-    db.session.commit()
+
 class SearchableMixin(object):
     '''Class that represents the SQLAlchemy objects of the Elastic Search'''
     @classmethod
@@ -100,7 +89,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True,index=True) 
     email = db.Column(db.String(120), unique=True, index=True)
-    image_file = db.Column(db.String(20), default= "default.png")
+    image_file = db.Column(db.String(20), default= "https://pixabay.com/get/5fe7d6474c52b108f5d08460da29317e153adce2565579_1280.png")
     social = db.Column(db.String(64), unique=True) 
     phone_number = db.Column(db.Integer, unique = True)
     password = db.Column(db.String(60), unique = True)
@@ -114,19 +103,57 @@ class User(db.Model, UserMixin):
     confirmed = db.Column(db.Boolean, nullable=True, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
     receive_notifs = db.Column(db.Boolean, default = False)
+    messages_sent = db.relationship('Message',
+                                    foreign_keys='Message.sender_id',
+                                    backref='sender', lazy='dynamic')
+    messages_received = db.relationship('Message',
+                                        foreign_keys='Message.recipient_id',
+                                        backref='recipient', lazy='dynamic')
+    notifications = db.relationship('Notification', backref = 'user', lazy = 'dynamic')
+    last_message_read_time = db.Column(db.DateTime)
+    last_post_read_time = db.Column(db.DateTime)
     
     def set_user_password(self, form_password):
-        self._password = bcrypt.generate_password_hash(form_password)
+        self.password = bcrypt.generate_password_hash(form_password)
         
     def check_password(self, form_password):
         return bcrypt.check_password_hash(self._password, form_password)
+    
+    
+    def add_notification(self, name, data):
+            """Helper method that filters a notifcation from the db with teh same name. If it exists, the notifiation is deleted. THen a new notification object with the data being jsonified  and is added to the db.
+            returns the new Notification Object
+            """        
+            self.notifications.filter_by(name=name).delete()
+            new_notif = Notification(name=name, notification_payload=json.dumps(data), user = self)
+            db.session.add(new_notif)
+            return new_notif
+   
+    def new_messages(self):
+        """Function checks if there are new messages by assignining a particular datetime equal to the last time message was read
+
+        Returns:
+            [List]: Containing the messages that were sent after the last messages were seen
+        """        
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Message.query.filter_by(recipient=self).filter(
+            Message.date_read > last_read_time).count()
+    def new_posts(self):
+        """Function checks if there are new posts by assignining a particular datetime equal to the last time post was seen
+
+        Returns:
+            [List]: Containing the posts that were sent after the last messages were seen
+        """  
+        last_post_read_time = self.last_post_read_time or datetime(1900, 1,1)
+        return Post.query.filter_by(recepient=self).filter(Post.date_read > last_post_read_time)
+    
     '''FOllowed relationship table is used to model the relationship between the user and the users s/he has followed'''
     followed = db.relationship(
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-
+      
     def follow(self, user):
         if not self.is_following(user):
             self.followed.append(user)
@@ -228,7 +255,21 @@ class User(db.Model, UserMixin):
     def __repr__(self):
            return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+class Notification(db.Model):
+    __tablename__ = 'notification'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(128), index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.Float, index = True, default = time.time())
+    notification_payload = db.Column(db.Text)
+    
+    def get_json(self):
+        """Gets data from each notification as a string and deserializes it
 
+        Returns:
+            [JSON Payload]: [Returns a JSONified version of the notifications]
+        """        
+        return json.loads(str(self.notification_payload))
 class Permission:
     '''setting a permissions model for admin access.
     Anonymous:  0b00000000 (0x00) User who is not logged in. Read-only access to the application.
@@ -293,11 +334,10 @@ class Post(db.Model, SearchableMixin):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     likes = db.relationship('PostLike', backref='post', lazy='dynamic')
-    
     saved_posts = db.relationship('SavedPosts', backref='saved', lazy=True)
     language = db.Column(db.String(7))
     post_image = db.Column(db.String(30), nullable=True)
-    
+    date_read = db.Column(db.DateTime)
     def __repr__(self):
         return f"Post('{self.user_id}', '{self.date_posted}')"
 
@@ -319,3 +359,13 @@ class Comment(db.Model):
     
     def __repr__(self):
         return f"Comment('{self.title}', '{self.date_posted}')"
+    
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    body = db.Column(db.String(140))
+    date_read = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.body)

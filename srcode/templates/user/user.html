@@ -46,7 +46,10 @@
             <button type="button" class="btn btn-success btn-sm m-1" data-toggle="modal"
             data-target="#deleteModal">Following</button>
             <a href="{{url_for('user.videochat') }}" class="btn btn-success btn-sm mt-1 mb-1">
-              Vidoe Chat?
+              Video Chat?
+            </a>
+            <a href="{{url_for('user.send_message', recepient=user.username) }}" class="btn btn-success btn-sm mt-1 mb-1">
+              Message
             </a>
             <!-- Modal -->
             <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
@@ -89,7 +92,16 @@
         {% endif %}
          
          </div>
-     </div></div></div>
+      <div>
+        <img class="rounded-circle account-img" src="https://images.unsplash.com/photo-1588165231518-b4b22bfa0ddf?ixlib=rb-1.2.1&auto=format&fit=crop&w=2134&q=80">
+        <h2> Outfits 💪</h2> 
+        <img class="rounded-circle account-img" src="https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2134&q=80">
+        <h2> Food 🍗</h2>
+       
+      </div>
+     </div>
+    </div>
+  </div>
      <div>
      <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">

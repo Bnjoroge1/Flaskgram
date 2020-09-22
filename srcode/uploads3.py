@@ -1,7 +1,5 @@
 import secrets, os, flask_s3
-from srcode import app
 from config import Config
-from threading import Thread
 from werkzeug.utils import  secure_filename
 import boto3
 

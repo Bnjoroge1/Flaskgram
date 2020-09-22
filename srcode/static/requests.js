@@ -60,7 +60,6 @@ var myWidget = cloudinary.createUploadWidget({
 ,clientAllowedFormats: ['jpg','jpeg','png','gif'],
 maxImageFileSize:150000,
 maxVideoFileSize:1500000,
-googleApiKey:'AIzaSyCq0afAvFRRsZrQOFq7mrdswsri0x8WQYA',
 getTags:getMyTags
 }, (error, result) => { 
       if (!error && result && result.event === "success") { 

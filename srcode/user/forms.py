@@ -66,3 +66,7 @@ class SearchForm(FlaskForm):
 class follow_unfollowForm(FlaskForm):
     '''Implemented as a form to protect against CSRF attacks'''
     submit = SubmitField('Submit')
+    
+class MessageForm(FlaskForm):
+    message = TextAreaField(_i('Message*'), validators=[DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField(_i('Send'))

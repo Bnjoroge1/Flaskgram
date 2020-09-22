@@ -9,7 +9,7 @@ from threading import Thread
 def send_async_email(app, msg):
      '''FUcntionality to send emails asynchronously in the background, accepts both the meessage and the instance of the flask app.
      Giving flask mail a context of our app so that it can access config values'''
-     with app.app_context():
+     with current_app.app_context():
           mail.send(msg)
 def send_confirmation_email(to, template, subject = '[Flaskgram] Please Confirm your email'):
      msg = Message(subject=subject, sender = EmailConfig.DEFAULT_MAIL_SENDER, html = template, recipients= [to])    
@@ -20,7 +20,7 @@ def send_confirmation_email(to, template, subject = '[Flaskgram] Please Confirm 
 def send_async_password_reset(app, msg):
      '''FUcntionality to send emails asynchronously in the background, accepts both the meessage and the instance of the flask app.
      Giving flask mail a context of our app so that it can access config values'''
-     with app.app_context():
+     with current_app.app_context():
           mail.send(msg)
 
 

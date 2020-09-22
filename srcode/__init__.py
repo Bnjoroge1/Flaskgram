@@ -1,28 +1,26 @@
+from flask import Flask, request, current_app, app
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
+from flask_share import Share
+from flask_migrate import Migrate
+from flask_script import Manager
+from flask_mail import Mail
+from sqlalchemy import MetaData
+import logging, os
+from logging.handlers import SMTPHandler, RotatingFileHandler
+from flask_bootstrap import Bootstrap
+from config import Config
+from flask_turbolinks import turbolinks
+import redis
+from rq import Queue
+from flask_moment import Moment
+from flask_babel import Babel, _
+from flask_discussion import Discussion
+from elasticsearch import Elasticsearch
+from flask_caching import Cache
+from .essearch import connect_to_bonsai_search
 
-try:
-    from flask import Flask, request, current_app, app
-    from flask_sqlalchemy import SQLAlchemy
-    from flask_bcrypt import Bcrypt
-    from flask_login import LoginManager
-    from flask_share import Share
-    from flask_migrate import Migrate
-    from flask_script import Manager
-    from flask_mail import Mail
-    from sqlalchemy import MetaData
-    import logging, os
-    from logging.handlers import SMTPHandler, RotatingFileHandler
-    from flask_bootstrap import Bootstrap
-    from config import Config
-    from flask_turbolinks import turbolinks
-    import redis
-    from rq import Queue
-    from flask_moment import Moment
-    from flask_babel import Babel, _
-    from flask_discussion import Discussion
-    from elasticsearch import Elasticsearch
-    from flask_caching import Cache
-except:
-    raise ImportError
 
 #Set db path
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -51,8 +49,6 @@ login_manager.login_message = _('You need to login first to access this page')
 
 # db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 
-
-
 #turbolink = turbolinks()
 manager = Manager()
 mail = Mail()
@@ -63,21 +59,6 @@ babel = Babel()
 MAX_FILE_LENGTH = Config.MAX_FILE_lENGTH
 cache = Cache(config={
     'CACHE_TYPE': 'simple'})
-# if not app.debug:
-#          if Config.MAIL_SERVER:
-#               auth = None
-#          if Config.MAIL_USERNAME or Config.MAIL_PASSWORD:
-#               auth = (Config.MAIL_USERNAME, Config.MAIL_PASSWORD)
-#          secure = None
-#          if Config.MAIL_USE_TLS: 
-#                secure = ()
-#          mail_handler = SMTPHandler(
-#             mailhost=(Config.MAIL_SERVER, Config.MAIL_PORT,
-#             fromaddr='no-reply@' + Config.MAIL_SERVER,
-#             toaddrs=['mangucounsrec@gmail.com'], subject='Microblog Failure',
-#             credentials=auth, secure=secure)
-#          mail_handler.setLevel(logging.ERROR)
-#          app.logger.addHandler(mail_handler)
 def create_current_app(config_class = Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -93,10 +74,9 @@ def create_current_app(config_class = Config):
     bcrypt.init_app(app)
     discussion.init_app(app)
     turbolinks(app)
-    try:
-        app.elasticsearch = Elasticsearch([Config.ELASTIC_SEARCH_URL])
-    except  ConnectionRefusedError as connection_error:
-        return f'sth went wrong {connection_error}'
+    
+    app.elasticsearch = Elasticsearch(connect_to_bonsai_search()) if Config.ELASTIC_SEARCH_URL else None
+   
     from srcode.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
@@ -122,12 +102,10 @@ def create_current_app(config_class = Config):
     app.register_blueprint(twitter_bp)
     with app.app_context():
         db.create_all()
-        
-    # with app.current_app_context():
-    #     if db.engine.url.drivername == 'sqlite':
-    #         migrate.init_app(app, db, render_as_batch=True)
-    #     else:
-    #         migrate.init_app(app, db)
+        if db.engine.url.drivername == 'sqlite':
+            migrate.init_app(app, db, render_as_batch=True)
+        else:
+            migrate.init_app(app, db)
 
     if not app.debug and not app.testing:
         if not os.path.exists('logs'):

@@ -44,10 +44,9 @@
 			<div class="nav-item active dropdown">
 				<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Discover</a>
 				<div class="dropdown-menu">
-					<a href="#" class="dropdown-item">Trending Posts</a>
+					<a href="{{url_for('user.get_trending')}}" class="dropdown-item">Trending Posts</a>
 					<a href="#" class="dropdown-item">New Posts</a>
 					<a href="#" class="dropdown-item">All Posts</a>
-					<a href="#" class="dropdown-item">Digital Marketing</a>
 				</div>
 			</div>
 			<a href="{{url_for('community.community') }}" class="nav-item nav-link active">Community</a>
@@ -56,7 +55,7 @@
 		
 			
     {% if g.search_form %}
-        <form class="navbar-form form-inline" method="get"
+        <form class="navbar-form form-inline" method="GET"
                       action="{{ url_for('user.search') }}">
           
                   {{ g.search_form.q(size=20, class='form-control',
@@ -69,7 +68,20 @@
                {% if current_user.is_authenticated  %}
                <a href="{{ url_for('user.get_notifications',username=current_user.username) }}" class="nav-item nav-link active notifications"><i class="fa fa-bell-o"></i><span class="badge">{{ current_user.followers.count() + current_user.followed.count() }}</span></a>
                
-                    <a href="#" class="nav-item nav-link active messages"><i class="fa fa-envelope-o"></i><span class="badge">10</span></a></a>
+                    
+                      {% set new_messages = current_user.new_messages()%}
+                      {% if new_messages %}
+                      <a href="{{url_for('user.view_messages')}}" class="nav-item nav-link active messages"><i class="fa fa-envelope-o "></i>
+                        <span class = "badge"">
+                            {{ new_messages.count() }}
+                    </span>
+                    {% else %}
+                    <a href="{{url_for('user.view_messages')}}" class="nav-item nav-link active messages"><i class="fa fa-envelope-o"></i>
+                    <span class ="badge">
+                      0
+                    </span>
+                  </a>
+                    {% endif %}
                     <div class="nav-item dropdown">
                          <a href="#" data-toggle="dropdown" class="nav-link active dropdown-toggle user-action"> <img class="avatar" src= "https://flaskium.s3.amazonaws.com/profile_pics/Profile_pics/{{ current_user.image_file }}"> 
                           <b class="caret"></b></a>
@@ -116,19 +128,20 @@
        {% if current_user.is_authenticated %}
           <div class="col-md-4">
             <br>
-          <div class="content-section">
-               <h3>Sidebar</h3>
-               <p class='text-muted'>You can put any information here you'd like.
-               <ul class="list-group">
-                    <li class="list-group-item list-group-item-light">Latest Posts</li>
-                    <li class="list-group-item list-group-item-light">Announcements</li>
-                    <li class="list-group-item list-group-item-light">Calendars</li>
-                    <li class="list-group-item list-group-item-light">etc</li>
-               </ul>
-               </p>
+            <div class="content-section">
+              <div class="media">
+                <img class="rounded-circle account-img" src="{{ image_file }}">
+                <div class="media-body">
+                       <div>
+                        <h2 class="account-heading">{{ _(current_user.username) }}</h2> 
+                        </div>
+                        <p class= "text-secondary"> Last seen {{ moment(current_user.last_seen).fromNow()}}
+                        <p class='text-secondary'> Joined {{ moment(current_user.registered_on).fromNow() }}</p>
+                        <p class = "text-secondary">  {{ _(current_user.bio) }}</p>
+                        <div><a href ="{{url_for('user.all_followers', username=current_user.username)}}" class="btn btn-outline danger">{{ no_followers }} followers</a> <a class= "btn btn-outline danger"href="{{url_for('user.get_following', username=current_user.username)}}">{{ user_following }} following </a> <a href ="#" class='text-secondary'>  </div>
+                        
          </div>
        </div>
-       {% else %}
        {% endif%}
      </div>
    </main>
@@ -154,7 +167,7 @@
      {% if current_user.is_authenticated %}
      <!-- Copyright -->
      <div class="footer-copyright text-center py-3">© 2020 Made by
-       <a href="https://github.com/Bnjorogedev/"> BIll NJoroge</a>
+       <a href="https://github.com/Bnjorogedev/"> Bill Njoroge</a>
      </div>
      {% endif %}
      <!-- Copyright -->
@@ -197,6 +210,25 @@ crossorigin="anonymous"></script>
         data-isso-vote-levels=""
         data-isso-feed="false"
         src="/prefix/js/embed.js"></script>
-               
+{% block scripts %}
+{% if current_user.is_authenticated %}
+      <script>
+        $(function() {
+            var since = 0;
+            setInterval(function() {
+                $.ajax('{{ url_for('user.get_notifications') }}?since=' + last_notifications).done(
+                    function(notifications) {
+                        for (var i = 0; i < notifications.length; i++) {
+                            if (notifications[i].name == 'unread_message_count')
+                                set_message_count(notifications[i].data);
+                            since = notifications[i].timestamp;
+                        }
+                    }
+                );
+            }, 10000);
+        });
+</script>
+{% endif %}
+{% endblock scripts %}
 </body>
 </html>

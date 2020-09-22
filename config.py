@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
+from urllib.parse import urlparse
 class Config(object):
      SECRET_KEY =  os.environ.get('SECRET_KEY')
      SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -15,7 +16,7 @@ class Config(object):
      safaricom_consumer_key = os.environ.get('safaricom_consumer_key', None)
      safaricom_consumer_secret = os.environ.get('safaricom_consumer_secret', default=None)
      POSTS_PER_PAGE = os.environ.get('POSTS_PER_PAGE')
-     ELASTIC_SEARCH_URL = os.environ.get('ELASTIC_SEARCH_URL', None)
+     ELASTIC_SEARCH_URL = os.environ.get('ELASTIC_SEARCH_URL') or 'http://127.0.0.1:9200'
      stream_api_key = os.environ.get('stream_api_key', None)
      stream_secret_key = os.environ.get('stream_secret_key', None)
      TWILIO_ACCOUNT_SID =  os.environ.get('TWILIO_ACCOUNT_SID')
@@ -45,7 +46,8 @@ class Config(object):
     }
 }
      SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') 
-     IMAGE_UPLOAD_DIR_Temp = os.path.join(basedir, 'srcode/static/post_pics')
+     SQLALCHEMY_POOL_SIZE=20
+     SQLALCHEMY_POOL_TIMEOUT=300
      RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_COPY_SITE_KEY') or 'not-available'
      RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')  or 'not-available'
      stripe_publishable_key = os.environ.get('STRIPE_PUBLISHABLE_KEY')

@@ -1,21 +1,21 @@
-from srcode.auth.decorator import admin_required
-from srcode.essearch import add_to_index
+from ..auth.decorator import admin_required
+from ..essearch import add_to_index
 from sqlalchemy import func
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, g
 from srcode import cache, db
-from .forms import UpdateAccountForm, PostForm, CommentForm, follow_unfollowForm, UpdateAdminAccountForm, SearchForm
+from .forms import MessageForm, UpdateAccountForm, PostForm, CommentForm, follow_unfollowForm, UpdateAdminAccountForm, SearchForm
 from twilio.jwt.access_token import AccessToken
 from twilio.jwt.access_token.grants import VideoGrant
-from srcode.models import SavedPosts, User, Post, Role, PostLike, Comment
+from ..models import Message, Notification, SavedPosts, User, Post, Role, PostLike, Comment
 from .email import send_post_notification_email
 from flask_login import current_user, login_required
 import requests
 from datetime import datetime
-from srcode.user import bp
+from ..user import bp
 from config import Config
 from flask_babel import _
 from guess_language import guess_language
-from srcode.uploads3 import save_picture
+from ..uploads3 import save_picture
 from .decorator import check_confirmed
 from flask_babel import _, get_locale
 
@@ -25,8 +25,9 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
-        g.search_form = SearchForm()
-        
+        g.search_form = SearchForm() 
+        g.user_followers = get_following(current_user.username) 
+        #g.current_user_messages = view_messages() 
     g.locale = str(get_locale())  
 
 
@@ -35,7 +36,7 @@ def before_request():
 #@check_confirmed
 def home():
     posts = current_user.followed_posts()
-    return render_template('home.html', title='About', posts=posts)
+    return render_template('main/home.html', title='Home', posts=posts)
   
 
 @bp.route("/about")
@@ -45,7 +46,7 @@ def home():
 def about():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=4)
-    return render_template('about.html',  posts=posts, title='All posts')  
+    return render_template('main/about.html',  posts=posts, title='All posts')  
 
 @bp.route('/search')
 @login_required
@@ -58,14 +59,15 @@ def search():
         if total > page * 5 else None
     prev_url = url_for('user.search', q=g.search_form.q.data, page=page - 1) \
         if page > 1 else None
-    return render_template('search.html', title=_('Search'), posts=posts,
+    return render_template('main/search.html', title=_('Search'), posts=posts,
                            next_url=next_url, total = total, prev_url=prev_url)  
+    
 @bp.route('/trending', methods = ['GET', 'POST'])
 @cache.cached(timeout=50, key_prefix = 'trending_posts')
 def get_trending():
     posts = db.session.query(Post).outerjoin(PostLike).group_by(Post.id).order_by(func.count().desc()).all() 
     #posts = Post.query.order_by(Post.likes.desc())
-    return render_template('trending.html', posts = posts)
+    return render_template('main/trending.html', posts = posts)
 
 @bp.route('/<username>', methods=['GET'])
 @login_required
@@ -109,14 +111,22 @@ def account():
         form.email.data = current_user.email
         form.bio.data = current_user.bio
     image_file = f'https://{Config.AWS_BUCKET}.s3.amazonaws.com/profile_pics/Profile_pics/'+ str(current_user.image_file)
+    current_user_messages = current_user.messages_received.order_by(
+        Message.date_read.desc())
     return render_template('user/account.html', title='Account',
-                           image_file=image_file, form=form)
-@bp.route('/<string:username>/notifications')
+                           image_file=image_file, current_user_messages=current_user_messages, form=form)
+@bp.route('/notifications')
 @login_required
-def get_notifications(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user/notifications.html')
-
+def get_notifications():
+    last_notifications = request.args.get('since',0.0, type=float)
+    user_notifications = current_user.notifications.filter(
+    Notification.timestamp > last_notifications).order_by(Notification.timestamp.asc())
+    return jsonify([{
+    'name' : notif.name,
+    'data' : notif.get_json(),
+    'timestamp' : notif.timestamp 
+    } for notif in user_notifications])
+        
 @bp.route('/edit_admin_profile/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
@@ -163,31 +173,13 @@ def new_post(username):
                 post = Post(tag=form.tag.data, content=form.content.data, author=current_user, post_image =post_file, language = post_language)
                 db.session.add(post)
                 db.session.commit()
-            elif isinstance(post_file, list):
-                for image in post_file:
-                    post = Post(tag=form.tag.data, content=form.content.data, author=current_user, post_image =image, language = post_language)
-                    db.session.add(post)
-                db.session.commit()
-            # '''We define a json object to itnerface with Pusher client activity feed'''
-            # data = {
-            #     'id': f"post-{post.id}",
-            #     'title': request.form.get('title'),
-            #     'content': request.form.get('content'),
-            #     'author': request.form.get('author'),
-            #     'date_posted' : request.form.get('date_posted'),
-            #     'status': 'active',
-            #     'event_name': 'added'
-            # }
-            # try:
-            #     pusher.trigger('flaskgram', 'post-added', data)
-            # except:
-            #     flash('You have no internet connection at the moment', 'info')
-            #     #raise ConnectionRefusedError
-                
+            for image in post_file:
+                post = Post(tag=form.tag.data, content=form.content.data, author=current_user, post_image =image, language = post_language)
+                db.session.add(post)
+            db.session.commit()    
             flash(f'{current_user.username}, your post has been created!', 'success')
             '''send a notification email to each of the user's followers'''
             send_post_notification_email(user.followers, post=post, user=user, date_posted = post.date_posted.strftime('%a,%B,%H, %p'))
-            #send_post_notification_whatsapp(user)
             return redirect(url_for('user.home'))
             return jsonify(data)
           
@@ -199,7 +191,7 @@ def new_post(username):
 #@check_confirmed
 def post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('posts.html', post=post)
+    return render_template('main/posts.html', post=post)
     
 
 @bp.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
@@ -263,7 +255,6 @@ def create_comment(post_id):
      if form.validate_on_submit():
           comment = Comment(title=form.title.data, content=form.content.data)
           db.session.add(comment)
-          #db.session.rollback()
           db.session.commit()
           flash(f'{current_user.username}, Your comment has been posted!', 'success')
           return redirect(url_for('home'))
@@ -297,11 +288,11 @@ def post_notifs(username, action):
     if action == 'yes':
         current_user.receive_notifs =  True
         db.session.commit()
-        flash(f'You will be receiveing email and whatsapp notifications from {username}', 'success')
+        flash(f'You will be receiveing email notifications from {username}', 'success')
     elif action == 'no':
         current_user.receive_notifs = False  
         db.session.commit()    
-        flash(f'You wont be receiving email and whastsapp otifications from {username}', 'success')  
+        flash(f'You wont be receiving email notifications from {username}', 'success')  
     return redirect(request.referrer)
     
 @bp.route('/<username>/followers')
@@ -354,9 +345,31 @@ def connect_video():
     token.add_grant(VideoGrant(room='Private Video Call'))
     return {'token' : token.to_jwt().decode()}
 
+@bp.route('/send/message/<string:recepient>', methods = ['GET','POST'])   
+@login_required
+def send_message(recepient):
+    user = User.query.filter_by(username=recepient).first_or_404()   
+    form = MessageForm()   
+    if form.validate_on_submit():
+        msg = Message(sender= current_user, recepient=user, body = form.message.data)
+        db.session.add(msg)
+        user.add_notification('unread_messages', user.new_messages())
+        db.session.commit()
+        flash('Your message has been sent', 'success')
+        return redirect(url_for('home'))     
+    user_name = user.username
+    return render_template('user/send_message.html', user_name=user_name, form=form)
 
-    
-    
+@bp.route('/view/messages')
+@login_required
+def view_messages():
+    current_user.last_message_read_time = datetime.utcnow()
+    current_user.add_notification('unread_messages', 0)
+    db.session.commit()
+    page = request.args.get('page', 1, type=int)
+    current_user_messages = current_user.messages_received.order_by(
+        Message.date_read.desc())
+    return render_template('user/view_messages.html', current_user_messages=current_user_messages)
 @bp.route('/bookmark/<int:post_id>/<action>')
 @login_required
 #@check_confirmed
