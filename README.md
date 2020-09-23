@@ -60,7 +60,7 @@ Run the tests.
 Finally, launch flask run to run a dev server(or flask run--cert=adhoc to get an adhoc ssl certificate)o
 ```bash
 #Clone the repo
-git clone https://
+git clone https://github.com/Bnjorogedev/Flaskgram-instaclone.git
 ```
 Create and activate a virtualenvironment
 ```python
