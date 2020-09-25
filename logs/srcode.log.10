@@ -1,0 +1,132 @@
+2020-08-04 17:10:51,813 INFO: Microblog startup [in /home/bnjoroge/PythonProjects/Flaskium/srcode/__init__.py:56]
+2020-08-04 17:10:53,346 ERROR: Exception on /account [GET] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/base.py", line 1278, in _execute_context
+    cursor, statement, parameters, context
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/default.py", line 593, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: user.social
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 270, in decorated_view
+    elif not current_user.is_authenticated:
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/werkzeug/local.py", line 347, in __getattr__
+    return getattr(self._get_current_object(), name)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/werkzeug/local.py", line 306, in _get_current_object
+    return self.__local()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 26, in <lambda>
+    current_user = LocalProxy(lambda: _get_user())
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 346, in _get_user
+    current_app.login_manager._load_user()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/login_manager.py", line 318, in _load_user
+    user = self._user_callback(user_id)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/models.py", line 9, in load_user
+    return User.query.get(int(user_id))
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 1021, in get
+    return self._get_impl(ident, loading.load_on_pk_identity)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 1138, in _get_impl
+    return db_load_fn(self, primary_key_identity)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/loading.py", line 287, in load_on_pk_identity
+    return q.one()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 3458, in one
+    ret = self.one_or_none()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 3427, in one_or_none
+    ret = list(self)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 3503, in __iter__
+    return self._execute_and_instances(context)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 3528, in _execute_and_instances
+    result = conn.execute(querycontext.statement, self._params)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/base.py", line 1014, in execute
+    return meth(self, multiparams, params)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/sql/elements.py", line 298, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/base.py", line 1133, in _execute_clauseelement
+    distilled_params,
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/base.py", line 1318, in _execute_context
+    e, statement, parameters, cursor, context
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/base.py", line 1512, in _handle_dbapi_exception
+    sqlalchemy_exception, with_traceback=exc_info[2], from_=e
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/util/compat.py", line 178, in raise_
+    raise exception
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/base.py", line 1278, in _execute_context
+    cursor, statement, parameters, context
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/sqlalchemy/engine/default.py", line 593, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: user.social
+[SQL: SELECT user.id AS user_id, user.username AS user_username, user.email AS user_email, user.image_file AS user_image_file, user.social AS user_social, user.password AS user_password, user.about_me AS user_about_me, user.last_seen AS user_last_seen 
+FROM user 
+WHERE user.id = ?]
+[parameters: (1,)]
+(Background on this error at: http://sqlalche.me/e/13/e3q8)
+2020-08-04 17:11:23,414 INFO: Microblog startup [in /home/bnjoroge/PythonProjects/Flaskium/srcode/__init__.py:56]
+2020-08-04 17:12:17,930 ERROR: Exception on /account [POST] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/routes.py", line 88, in account
+    current_user.last_seen = form.last_seen.data
+AttributeError: 'UpdateAccountForm' object has no attribute 'last_seen'
+2020-08-04 17:14:40,618 ERROR: Exception on /account [POST] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/routes.py", line 88, in account
+    current_user.last_seen = form.last_seen.data
+AttributeError: 'UpdateAccountForm' object has no attribute 'last_seen'
+2020-08-04 17:15:23,257 ERROR: Exception on /account [POST] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/routes.py", line 88, in account
+    #current_user.last_seen = form.last_seen.data
+AttributeError: 'UpdateAccountForm' object has no attribute 'last_seen'

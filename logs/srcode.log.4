@@ -1,0 +1,111 @@
+2020-08-05 18:24:36,041 ERROR: Exception on /account [GET] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/routes.py", line 103, in account
+    image_file=image_file, form=form, form1=form1, user=username)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
+    ctx.app,
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/templating.py", line 120, in _render
+    rv = template.render(context)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 1090, in render
+    self.environment.handle_exception()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
+    reraise(*rewrite_traceback_stack(source=source))
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
+    raise value.with_traceback(tb)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/account.html", line 1, in top-level template code
+    {% extends "layout.html" %}
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/layout.html", line 73, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/account.html", line 10, in block "content"
+    <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 471, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'user' is undefined
+2020-08-05 18:26:54,916 ERROR: Exception on /account [GET] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/routes.py", line 103, in account
+    image_file=image_file, form=form, form1=form1, user=username)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
+    ctx.app,
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/templating.py", line 120, in _render
+    rv = template.render(context)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 1090, in render
+    self.environment.handle_exception()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
+    reraise(*rewrite_traceback_stack(source=source))
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
+    raise value.with_traceback(tb)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/account.html", line 1, in top-level template code
+    {% extends "layout.html" %}
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/layout.html", line 73, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/account.html", line 10, in block "content"
+    <p>{{ username.followers.count() }} followers, {{ username.followed.count() }} following.</p>
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 471, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'user' is undefined
+2020-08-05 19:07:23,351 ERROR: Exception on /account [GET] [in /home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/routes.py", line 103, in account
+    image_file=image_file, form=form, form1=form1, user=username)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
+    ctx.app,
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/flask/templating.py", line 120, in _render
+    rv = template.render(context)
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 1090, in render
+    self.environment.handle_exception()
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
+    reraise(*rewrite_traceback_stack(source=source))
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
+    raise value.with_traceback(tb)
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/account.html", line 1, in top-level template code
+    {% extends "layout.html" %}
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/layout.html", line 73, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/bnjoroge/PythonProjects/Flaskium/srcode/templates/account.html", line 10, in block "content"
+    <p>{{ username.followers.count() }} followers, {{ username.followed.count() }} following.</p>
+  File "/home/bnjoroge/.local/lib/python3.6/site-packages/jinja2/environment.py", line 471, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'user' is undefined

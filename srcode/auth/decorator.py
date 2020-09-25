@@ -28,3 +28,4 @@ def permission_required(permission):
 def admin_required(f):
     '''Admin required decorator can be used incase any routes are needed'''
     return permission_required(Permission.ADMINISTER)(f)   
+
