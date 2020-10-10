@@ -1,3 +1,26 @@
+<<<<<<< HEAD
+=======
+.env
+.env_bak
+__pycache__/
+__pycache__
+.pytest_cache
+instance/
+.flaskenv
+.vscode
+venv/
+
+
+
+#CFG files
+messages.pot
+babel.cfg
+logs
+site.db
+site.sql
+dump.sql
+
+>>>>>>> 5aaf45861bbf2f3b683f40ec443fedac0c45cc0f
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
