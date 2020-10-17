@@ -16,8 +16,10 @@ cache: pip
 services:
      -mysql
      -elasticsearch
+     -redis-server
 before_install:
      - mysql -e 'CREATE DATABASE IF NOT EXISTS test_app utf-8;'
+     - mysql -u root --default-character-set=utf8 baladay < scripts/bd.sql
      - flask db migrations
      - flask db upgrade
      - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.1-amd64.deb
@@ -28,7 +30,8 @@ before_install:
      - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
      - sudo service elasticsearch restart
      - curl -X GET "localhost:9200/?pretty"
-
+before_script:
+     - sleep 10
 # command to run tests
 script:
      -flask run
