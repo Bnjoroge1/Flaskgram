@@ -13,12 +13,9 @@ def send_async_email(app, msg):
           mail.send(msg)
 def send_confirmation_email(to, template_html, template_body, attachements = None, sync = False, subject = 'Welcome to [Flaskgram].Please Confirm your email'):
      msg = Message(subject=subject, sender = EmailConfig.DEFAULT_MAIL_SENDER, template_html = template_html, template_body = template_body, recipients= [to])   
-     if attachements:
-          for attachement in attachements:
-               msg.attach(*attachement)
      if sync:
           mail.send(msg) 
-     '''Using a thread classs and passing in the apps and msg as the args and start the thread'''
+     '''Using a thread class and passing in the apps and msg as the args and start the thread'''
      Thread(target=send_async_email, args = (create_current_app._get_current_object(), msg)).start()  
 
 

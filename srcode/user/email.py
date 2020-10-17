@@ -1,3 +1,4 @@
+from os import sync
 from config import EmailConfig
 from datetime import datetime
 from flask_mail import Message
@@ -23,4 +24,14 @@ def send_post_notification_email(followers, user, post, date_posted= datetime.no
      send_post_notification('[Flaskgram] Post Notification', sender = EmailConfig.DEFAULT_MAIL_SENDER,
      recipients = [follower_email.email for follower_email in followers],
      html_body= render_template('user/post_notifications.html', post=post, user=user, date_posted=date_posted))
+
+def send_posts(subject, sender, recipients, html_body, body_html, attachments = None, sync =False):
+     msg = Message(subject, sender=sender, recipients=recipients, html=html_body, body=body_html)
+     '''Pass the _get_current_object() to access the application's instance'''
+     if attachments:
+          for attachment in attachments:
+               msg.attach(*attachment)
+     if sync:
+          mail.send(msg)
+     Thread(target=send_async_post_notification_email, args=(current_app._get_current_object(), msg)).start()
 

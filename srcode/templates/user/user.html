@@ -133,7 +133,14 @@
         </article>
     {% endfor %}
       </div>
-      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+        {% if not current_user.get_specific_task_in_progress('export_posts') %}
+                <p>
+                  <a class= 'btn btn-success btn-sm mt-1 mb-1' href="{{ url_for('user.export_users_posts')}}"> Export your posts.</a>
+            
+                </p>
+        {% endif %}
+      </div>
       <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
         <a href="mailto:{{ user.email }}"> Email </a>
 

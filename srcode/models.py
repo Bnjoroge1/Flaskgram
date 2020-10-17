@@ -1,8 +1,9 @@
 from datetime import datetime
+from flask.globals import current_app
 import jwt, time, json, rq, redis
 from srcode import cache, create_current_app, db, login_manager, manager, bcrypt
 from flask_login import UserMixin
-from flask import request
+from flask import request, current_app
 from config import Config, EmailConfig
 from .essearch import add_to_index, remove_from_index, query_index
 
@@ -264,8 +265,8 @@ class User(db.Model, UserMixin):
         Returns:
            task[object]: [An object of the task]
         """        
-        rq_job = create_current_app.task_queue.enqueue('srcode.tasks.' + name, self.id,*args, **kwargs)
-        task = Task(id=rq_job.get_id(), name=name, description=description,
+        rq_job = current_app.task_queue.enqueue('srcode.tasks.' + name, self.id,*args, **kwargs)
+        task = Task(id= ''.join(rq_job.get_id().split('-')), name=name, description=description,
                     user=self)
         db.session.add(task)
         return task
@@ -334,7 +335,6 @@ class Role(db.Model):
         'Administrator': (0xff, False)
         }
         for r in roles: 
-            
             role = Role.query.filter_by(name=r).first()
             if role is None:    
                 role = Role(name=r)
@@ -355,7 +355,7 @@ class PostLike(db.Model):
 
 class Task(db.Model):
     #* ID-string beacuse rq assigns a string as the job id
-    id = db.Column(db.String(30), primary_key = True)
+    id = db.Column(db.Text, primary_key = True, auto_increment = False)
     name = db.Column(db.String(20), nullable = False)
     description = db.Column(db.String(50))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
