@@ -1,8 +1,9 @@
 from datetime import datetime
-import jwt, time, json
-from srcode import cache, db, login_manager, manager, bcrypt
+from flask.globals import current_app
+import jwt, time, json, rq, redis
+from srcode import cache, create_current_app, db, login_manager, manager, bcrypt
 from flask_login import UserMixin
-from flask import request
+from flask import request, current_app
 from config import Config, EmailConfig
 from .essearch import add_to_index, remove_from_index, query_index
 
@@ -103,6 +104,7 @@ class User(db.Model, UserMixin):
     confirmed = db.Column(db.Boolean, nullable=True, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
     receive_notifs = db.Column(db.Boolean, default = False)
+    tasks = db.relationship('Task', backref = 'user', lazy='dynamic')
     messages_sent = db.relationship('Message',
                                     foreign_keys='Message.sender_id',
                                     backref='sender', lazy='dynamic')
@@ -251,7 +253,35 @@ class User(db.Model, UserMixin):
                 user.follow(user)
                 db.session.add(user)
                 db.session.commit()    
+    def launch_task(self, name, description, *args, **kwargs):
+        """A helper method to enable a user to launch any type of task e.g send email, download posts, add static files to s3 etc.
 
+        Args:
+            ([self): [instance of the User])
+           name ([string]) : [name of the task e.g send email]
+            description (string): [description of the job/task]
+
+
+        Returns:
+           task[object]: [An object of the task]
+        """        
+        rq_job = current_app.task_queue.enqueue('srcode.tasks.' + name, self.id,*args, **kwargs)
+        task = Task(id= ''.join(rq_job.get_id().split('-')), name=name, description=description,
+                    user=self)
+        db.session.add(task)
+        return task
+
+    def get_tasks_in_progress(self):
+        """Gets the tasks that are currently proceeding
+
+        Returns:
+            [db Object]: [db objects that represent tasks that arent complete for a specific user]
+        """        
+        return Task.query.filter_by(user=self, complete=False).all()
+
+    def get_specific_task_in_progress(self, name):
+        return Task.query.filter_by(name=name, user=self,
+                                    complete=False).first()   
     def __repr__(self):
            return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
@@ -305,7 +335,6 @@ class Role(db.Model):
         'Administrator': (0xff, False)
         }
         for r in roles: 
-            
             role = Role.query.filter_by(name=r).first()
             if role is None:    
                 role = Role(name=r)
@@ -324,6 +353,29 @@ class PostLike(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
 
 
+class Task(db.Model):
+    #* ID-string beacuse rq assigns a string as the job id
+    id = db.Column(db.Text, primary_key = True, auto_increment = False)
+    name = db.Column(db.String(20), nullable = False)
+    description = db.Column(db.String(50))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    complete = db.Column(db.Boolean, default = False)
+
+    def get_rq_job(self):
+        try:
+            rq_job = rq.job.Job.fetch(self.id, connection = create_current_app.redis_server)
+        except (redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
+            return None
+        return rq_job
+            
+    def get_progress(self):
+        """Gets the progress as a percentage. Accepts an instance of a task and computes the percetagen using the meta tag in an rq worker process if there is a running job and if it stops running returns 100%
+
+        Returns:
+            [progress bar in percent]: [description]
+        """        
+        job = self.get_rq_job()
+        return job.meta.get('progress', 0) if job is not None else 100
 
 class Post(db.Model, SearchableMixin):
     __searchable__ = ['post_body']
