@@ -2,7 +2,7 @@ from config import  Config, EmailConfig
 from datetime import datetime
 from flask_mail import Message
 from flask import render_template, current_app
-from srcode import mail, app
+from srcode import create_current_app, mail, app
 from threading import Thread
 
 
@@ -11,10 +11,15 @@ def send_async_email(app, msg):
      Giving flask mail a context of our app so that it can access config values'''
      with current_app.app_context():
           mail.send(msg)
-def send_confirmation_email(to, template, subject = '[Flaskgram] Please Confirm your email'):
-     msg = Message(subject=subject, sender = EmailConfig.DEFAULT_MAIL_SENDER, html = template, recipients= [to])    
+def send_confirmation_email(to, template_html, template_body, attachements = None, sync = False, subject = 'Welcome to [Flaskgram].Please Confirm your email'):
+     msg = Message(subject=subject, sender = EmailConfig.DEFAULT_MAIL_SENDER, template_html = template_html, template_body = template_body, recipients= [to])   
+     if attachements:
+          for attachement in attachements:
+               msg.attach(*attachement)
+     if sync:
+          mail.send(msg) 
      '''Using a thread classs and passing in the apps and msg as the args and start the thread'''
-     Thread(target=send_async_email, args=(app, msg)).start()  
+     Thread(target=send_async_email, args = (create_current_app._get_current_object(), msg)).start()  
 
 
 def send_async_password_reset(app, msg):

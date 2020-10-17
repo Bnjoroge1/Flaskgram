@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 .env
 .env_bak
 __pycache__/
@@ -20,7 +18,6 @@ site.db
 site.sql
 dump.sql
 
->>>>>>> 5aaf45861bbf2f3b683f40ec443fedac0c45cc0f
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

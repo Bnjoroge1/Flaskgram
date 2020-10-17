@@ -6,14 +6,14 @@ from flask_share import Share
 from flask_migrate import Migrate
 from flask_script import Manager
 from flask_mail import Mail
+from redis import Redis
+import rq
 from sqlalchemy import MetaData
 import logging, os
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask_bootstrap import Bootstrap
 from config import Config
 from flask_turbolinks import turbolinks
-import redis
-from rq import Queue
 from flask_moment import Moment
 from flask_babel import Babel, _
 from flask_discussion import Discussion
@@ -52,8 +52,6 @@ login_manager.login_message = _('You need to login first to access this page')
 #turbolink = turbolinks()
 manager = Manager()
 mail = Mail()
-r = redis.Redis()
-q = Queue(connection=r)
 moment = Moment()
 babel = Babel()
 MAX_FILE_LENGTH = Config.MAX_FILE_lENGTH
@@ -62,6 +60,8 @@ cache = Cache(config={
 def create_current_app(config_class = Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    app.redis = Redis.from_url(Config.redis_server)
+    app.task_queue = rq.Queue('flaskgram-tasks', connection=app.redis)
     cache.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
