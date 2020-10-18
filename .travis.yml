@@ -1,8 +1,6 @@
 language: python
 dist: xenial
 python:
-     - "3.4"
-     - "3.5"
      - "3.6"      # current default Python on Travis CI
 # command to install dependencies
 install:
@@ -16,9 +14,11 @@ cache: pip
 services:
      -mysql
      -elasticsearch
+     -redis-server
 before_install:
      - mysql -e 'CREATE DATABASE IF NOT EXISTS test_app utf-8;'
-     - flask db migrations
+     - mysql -u root --default-character-set=utf8 baladay < scripts/models.py
+     - flask db migrate
      - flask db upgrade
      - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.1-amd64.deb
      - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.1-amd64.deb.sha512
@@ -28,7 +28,8 @@ before_install:
      - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
      - sudo service elasticsearch restart
      - curl -X GET "localhost:9200/?pretty"
-
+before_script:
+     - sleep 10
 # command to run tests
 script:
      -flask run

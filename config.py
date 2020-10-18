@@ -50,6 +50,7 @@ class Config(object):
      SQLALCHEMY_POOL_TIMEOUT=300
      RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_COPY_SITE_KEY') or 'not-available'
      RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')  or 'not-available'
+     redis_server = os.environ.get('redis_server_url') or 'redis://'
      stripe_publishable_key = os.environ.get('STRIPE_PUBLISHABLE_KEY')
      stripe_secret_key = os.environ.get('STRIPE_SECRET_KEY')
      stripe_product_id = os.environ.get('STRIPE_PRODUCT_ID')

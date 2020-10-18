@@ -30,7 +30,7 @@ def before_request():
         #g.current_user_messages = view_messages() 
     g.locale = str(get_locale())  
 
-
+@bp.route('/')
 @bp.route("/home")
 @login_required
 #@check_confirmed
@@ -308,6 +308,15 @@ def get_following(username):
     selected_user_following = set(selected_user.followed)
     return render_template('user/following.html', selected_user_following=selected_user_following, selected_user=selected_user)
 
+@bp.route('/export_posts')
+@login_required
+def export_users_posts():
+    if current_user.get_tasks_in_progress():
+        flash(_('A task is in progress!', 'info'))
+    current_user.launch_task('export_posts', 'exporting Your posts')
+    db.session.commit()
+    flash(_('Task has been launched!', 'succes'))
+    return redirect(url_for('main.home', username=current_user.username))
 @bp.route('/<string:username>/savedposts')
 @login_required
 def get_saved_posts(username):   
