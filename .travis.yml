@@ -19,8 +19,8 @@ services:
      -redis-server
 before_install:
      - mysql -e 'CREATE DATABASE IF NOT EXISTS test_app utf-8;'
-     - mysql -u root --default-character-set=utf8 baladay < scripts/bd.sql
-     - flask db migrations
+     - mysql -u root --default-character-set=utf8 baladay < scripts/models.py
+     - flask db migrate
      - flask db upgrade
      - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.1-amd64.deb
      - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.1-amd64.deb.sha512
