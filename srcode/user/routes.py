@@ -181,7 +181,7 @@ def new_post(username):
             '''send a notification email to each of the user's followers'''
             send_post_notification_email(user.followers, post=post, user=user, date_posted = post.date_posted.strftime('%a,%B,%H, %p'))
             return redirect(url_for('user.home'))
-            return jsonify(data)
+            
           
     #post_photo = url_for('static', filename='post_pics/' + save_picture(form.post_image.data, 'post'))   
     return render_template('user/create_posts.html', title='New Post', 
@@ -315,7 +315,7 @@ def export_users_posts():
         flash(_('A task is in progress!', 'info'))
     current_user.launch_task('export_posts', 'exporting Your posts')
     db.session.commit()
-    flash(_('Task has been launched!', 'succes'))
+    flash(_('Task has been launched!', 'success'))
     return redirect(url_for('main.home', username=current_user.username))
 @bp.route('/<string:username>/savedposts')
 @login_required
