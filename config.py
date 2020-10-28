@@ -75,3 +75,9 @@ class CloudinaryConfig(object):
     cloud_name = os.environ.get('cloud_name')
     CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
     CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
+
+
+class TestConfig(Config):
+     TESTING = True
+     SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test_app.db'
+     DEBUG = True

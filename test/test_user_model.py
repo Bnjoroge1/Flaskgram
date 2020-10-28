@@ -1,5 +1,5 @@
-from flask.globals import session
-from ..srcode.models import User, Post, PostLike, Notification
+from testconfigs import session
+from ...srcode.models import User
 
 def test_create_user_instance(session):
      """Test Function for a user instance
@@ -65,4 +65,3 @@ def test_follow_action(session):
      assert user1_object.followed.count() == 0
 
 
-     

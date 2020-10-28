@@ -20,12 +20,12 @@ from flask_discussion import Discussion
 from elasticsearch import Elasticsearch
 from flask_caching import Cache
 from .essearch import connect_to_bonsai_search
-
-
+from .blinker_pubs import connect_pub_handlers
 #Set db path
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-#Configure secret and api_key
+#Connect with signal handlers.
+connect_pub_handlers()
 
 #Instantiate Database, migrations, bcrypt and share classes
 db = SQLAlchemy() 
@@ -59,7 +59,8 @@ cache = Cache(config={
     'CACHE_TYPE': 'simple'})
 def create_current_app(config_class = Config):
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    if config_class:
+        app.config.from_object(config_class)
     app.redis = Redis.from_url(Config.redis_server)
     app.task_queue = rq.Queue('flaskgram-tasks', connection=app.redis)
     cache.init_app(app)
@@ -115,7 +116,6 @@ def create_current_app(config_class = Config):
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-
         app.logger.setLevel(logging.INFO)
         app.logger.info('Flaskgram startup')
     return app
