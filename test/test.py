@@ -6,9 +6,6 @@ from srcode import db, create_current_app
 from srcode.models import User, Post
 from config import Config
 
-class TestConfig(Config):
-     TESTING = True
-     SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 class UserModelCase(unittest.TestCase):
 

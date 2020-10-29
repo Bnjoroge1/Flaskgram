@@ -1,11 +1,12 @@
 from datetime import datetime
-from flask.globals import current_app
 import jwt, time, json, rq, redis
 from srcode import cache, create_current_app, db, login_manager, manager, bcrypt
+from .blinker_pubs import followed_user_signal
 from flask_login import UserMixin
 from flask import request, current_app
 from config import Config, EmailConfig
 from .essearch import add_to_index, remove_from_index, query_index
+from sqlalchemy.ext.hybrid import hybird_property
 
 
 
@@ -93,7 +94,7 @@ class User(db.Model, UserMixin):
     image_file = db.Column(db.String(20), default= "https://pixabay.com/get/5fe7d6474c52b108f5d08460da29317e153adce2565579_1280.png")
     social = db.Column(db.String(64), unique=True) 
     phone_number = db.Column(db.Integer, unique = True)
-    password = db.Column(db.String(60), unique = True)
+    _password = db.Column(db.String(60), unique = True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     posts = db.relationship('Post', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='commenter', lazy= True)
@@ -114,9 +115,14 @@ class User(db.Model, UserMixin):
     notifications = db.relationship('Notification', backref = 'user', lazy = 'dynamic')
     last_message_read_time = db.Column(db.DateTime)
     last_post_read_time = db.Column(db.DateTime)
-    
-    def set_user_password(self, form_password):
-        self.password = bcrypt.generate_password_hash(form_password)
+
+    @hybird_property
+    def password(self):
+        return self._password
+
+    @property.setter
+    def password(self, form_password):
+        self._password = bcrypt.generate_password_hash(form_password)
         
     def check_password(self, form_password):
         return bcrypt.check_password_hash(self._password, form_password)
@@ -160,6 +166,8 @@ class User(db.Model, UserMixin):
         if not self.is_following(user):
             self.followed.append(user)
 
+        #Publish the follow action to the Sub.
+        user_followed_signal.send(self)
     def unfollow(self, user):
         if self.is_following(user):
             self.followed.remove(user)

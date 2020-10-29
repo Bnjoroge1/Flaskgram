@@ -8,7 +8,7 @@ def connect_to_bonsai_search():
      """     
      # Parse the auth and host from env:
      auth = re.search('https\:\/\/(.*)\@', bonsai_search_url).group(1).split(':')
-     host = bonsai_search_url.replace('https://%s:%s@' % (auth[0], auth[1]), '')
+     host = bonsai_search_url.replace(f'https://{auth[0]}:{auth[1]}@', '')
 
      # optional port
      match = re.search('(:\d+)', host)
